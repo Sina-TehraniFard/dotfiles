@@ -1,0 +1,60 @@
+{
+  // ------------------------------------------------------------
+  // LSP設定: PHP (Intelephense) + Kotlin Language Server
+  // ------------------------------------------------------------
+  "languageserver": {
+    "intelephense": {
+      "command": "intelephense",
+      "args": ["--stdio"],
+      "filetypes": ["php"],
+      "initializationOptions": {
+        "storagePath": "/tmp/intelephense",
+        "clearCache": true,
+        "licenseKey": null
+      }
+    },
+    "kotlin": {
+      "command": "kotlin-language-server",
+      "args": [],
+      "filetypes": ["kotlin"],
+      "rootPatterns": ["settings.gradle", "settings.gradle.kts", "build.gradle", "build.gradle.kts", ".git/"],
+      "trace.server": "verbose"
+    }
+  },
+
+  // ------------------------------------------------------------
+  // 共通設定
+  // ------------------------------------------------------------
+  "suggest.autoTrigger": "always",
+  "suggest.noselect": false,
+  "suggest.enablePreview": true,
+  "diagnostic.enable": true,
+  "diagnostic.displayByAle": false,
+  "coc.preferences.formatOnSaveFiletypes": ["php", "kotlin"],
+  "coc.preferences.hoverTarget": "float",
+  "signature.enable": true,
+
+  // ------------------------------------------------------------
+  // PHP関連
+  // ------------------------------------------------------------
+  "php.validate.enable": true,
+  "php.suggest.basic": false,
+  "php.executablePath": "/usr/local/bin/php",
+
+  // ------------------------------------------------------------
+  // Kotlin関連
+  // ------------------------------------------------------------
+  "kotlin.languageServer.path": "/opt/homebrew/bin/kotlin-language-server",
+
+  // ------------------------------------------------------------
+  // Intelephense設定（詳細制御）
+  // ------------------------------------------------------------
+  "intelephense.environment.includePaths": [
+    "/usr/local/include",
+    "/opt/homebrew/include"
+  ],
+  "intelephense.files.maxSize": 5000000,
+  "intelephense.completion.triggerParameterHints": true,
+  "intelephense.completion.insertUseDeclaration": true,
+  "intelephense.format.enable": true
+}
