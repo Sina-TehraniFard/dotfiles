@@ -1,0 +1,181 @@
+-- ======================================================================
+-- 自動コマンド (Autocmds)
+-- ======================================================================
+
+local augroup = vim.api.nvim_create_augroup
+local autocmd = vim.api.nvim_create_autocmd
+
+-- ======================================================================
+-- 一般的な自動コマンド
+-- ======================================================================
+
+-- ファイル変更を自動検出
+augroup("AutoRead", { clear = true })
+autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
+  group = "AutoRead",
+  pattern = "*",
+  callback = function()
+    if vim.fn.mode() ~= "c" then
+      vim.cmd("checktime")
+    end
+  end,
+  desc = "Check if file changed outside of Neovim",
+})
+
+-- ヤンク時にハイライト
+augroup("HighlightYank", { clear = true })
+autocmd("TextYankPost", {
+  group = "HighlightYank",
+  pattern = "*",
+  callback = function()
+    vim.highlight.on_yank({ higroup = "IncSearch", timeout = 200 })
+  end,
+  desc = "Highlight yanked text",
+})
+
+-- 最後のカーソル位置を復元
+augroup("RestoreCursor", { clear = true })
+autocmd("BufReadPost", {
+  group = "RestoreCursor",
+  pattern = "*",
+  callback = function()
+    local line = vim.fn.line("'\"")
+    if line > 0 and line <= vim.fn.line("$") then
+      vim.cmd('normal! g`"')
+    end
+  end,
+  desc = "Restore cursor position",
+})
+
+-- 末尾の空白を自動削除
+augroup("TrimWhitespace", { clear = true })
+autocmd("BufWritePre", {
+  group = "TrimWhitespace",
+  pattern = "*",
+  callback = function()
+    local save_cursor = vim.fn.getpos(".")
+    vim.cmd([[%s/\s\+$//e]])
+    vim.fn.setpos(".", save_cursor)
+  end,
+  desc = "Remove trailing whitespace on save",
+})
+
+-- ======================================================================
+-- ファイルタイプ別設定
+-- ======================================================================
+
+augroup("FileTypeSettings", { clear = true })
+
+-- Markdown
+autocmd("FileType", {
+  group = "FileTypeSettings",
+  pattern = "markdown",
+  callback = function()
+    vim.opt_local.wrap = true
+    vim.opt_local.spell = true
+    vim.opt_local.spelllang = "en,cjk"
+  end,
+  desc = "Markdown specific settings",
+})
+
+-- JSON
+autocmd("FileType", {
+  group = "FileTypeSettings",
+  pattern = "json",
+  callback = function()
+    vim.opt_local.tabstop = 2
+    vim.opt_local.shiftwidth = 2
+  end,
+  desc = "JSON specific settings",
+})
+
+-- YAML
+autocmd("FileType", {
+  group = "FileTypeSettings",
+  pattern = "yaml",
+  callback = function()
+    vim.opt_local.tabstop = 2
+    vim.opt_local.shiftwidth = 2
+  end,
+  desc = "YAML specific settings",
+})
+
+-- Lua
+autocmd("FileType", {
+  group = "FileTypeSettings",
+  pattern = "lua",
+  callback = function()
+    vim.opt_local.tabstop = 2
+    vim.opt_local.shiftwidth = 2
+  end,
+  desc = "Lua specific settings",
+})
+
+-- HTML/CSS/JavaScript/TypeScript
+autocmd("FileType", {
+  group = "FileTypeSettings",
+  pattern = { "html", "css", "javascript", "typescript", "javascriptreact", "typescriptreact" },
+  callback = function()
+    vim.opt_local.tabstop = 2
+    vim.opt_local.shiftwidth = 2
+  end,
+  desc = "Web development specific settings",
+})
+
+-- ======================================================================
+-- ウィンドウ関連
+-- ======================================================================
+
+-- リサイズ時にウィンドウサイズを均等化
+augroup("EqualizeWindows", { clear = true })
+autocmd("VimResized", {
+  group = "EqualizeWindows",
+  pattern = "*",
+  command = "tabdo wincmd =",
+  desc = "Equalize window sizes on resize",
+})
+
+-- ======================================================================
+-- ヘルプ・特殊バッファ
+-- ======================================================================
+
+-- ヘルプを右側に開く
+augroup("HelpWindow", { clear = true })
+autocmd("FileType", {
+  group = "HelpWindow",
+  pattern = "help",
+  command = "wincmd L",
+  desc = "Open help in vertical split",
+})
+
+-- q で閉じられるバッファ
+augroup("CloseWithQ", { clear = true })
+autocmd("FileType", {
+  group = "CloseWithQ",
+  pattern = { "help", "man", "qf", "lspinfo", "checkhealth" },
+  callback = function()
+    vim.keymap.set("n", "q", "<cmd>close<CR>", { buffer = true, silent = true })
+  end,
+  desc = "Close buffer with q",
+})
+
+-- ======================================================================
+-- 大きなファイルの最適化
+-- ======================================================================
+
+augroup("LargeFile", { clear = true })
+autocmd("BufReadPre", {
+  group = "LargeFile",
+  pattern = "*",
+  callback = function()
+    local file_size = vim.fn.getfsize(vim.fn.expand("%"))
+    if file_size > 1024 * 1024 then -- 1MB以上
+      vim.opt_local.syntax = "off"
+      vim.opt_local.filetype = ""
+      vim.opt_local.undofile = false
+      vim.opt_local.swapfile = false
+      vim.opt_local.loadplugins = false
+    end
+  end,
+  desc = "Optimize for large files",
+})
