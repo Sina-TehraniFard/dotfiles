@@ -102,6 +102,16 @@ dotvim/
 | `<leader>gh` | ファイル履歴 |
 | `]h` / `[h` | 次/前の変更箇所 |
 
+### データベース
+
+| キー | 機能 |
+|------|------|
+| `<leader>du` | DBUIを開く/閉じる |
+| `<leader>da` | DB接続を追加 |
+| `<leader>df` | DBバッファを検索 |
+| `<leader>dr` | DBバッファをリネーム |
+| `<leader>dl` | 最後のクエリ情報 |
+
 ### 編集
 
 | キー | 機能 |
@@ -144,6 +154,11 @@ dotvim/
 - **markdown-preview.nvim** - Markdownプレビュー
 - **obsidian.nvim** - Obsidian連携
 - **render-markdown.nvim** - Markdown装飾表示
+
+### データベース
+- **vim-dadbod** - データベース操作
+- **vim-dadbod-ui** - DBクライアントUI
+- **vim-dadbod-completion** - SQL補完
 
 ## ドキュメント
 
