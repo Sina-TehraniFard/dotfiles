@@ -1,151 +1,166 @@
 # dotvim
 
-VimをIDE化するための設定です。PHP と Kotlin に対応したLSP環境を構築できます。
+Neovim を IDE 化するための設定です。macOS / Linux に対応しています。
 
 ## 特徴
 
-- **LSP対応**: 自動補完、定義ジャンプ、リファクタリング機能
-- **ファイル操作**: NERDTree（ファイルツリー）、fzf（ファジーファインダー）
-- **Git連携**: fugitive（Gitコマンド）、gitgutter（差分表示）
-- **編集効率化**: コメントアウト、括弧補完、サラウンド操作
-- **対応言語**: PHP（Intelephense）、Kotlin（Kotlin Language Server）
+- **モダンなプラグイン管理**: lazy.nvim による遅延読み込み
+- **LSP対応**: 補完、定義ジャンプ、リファクタリング、診断表示
+- **多言語サポート**: Lua, Python, TypeScript, PHP, Kotlin, Go, Rust 等
+- **Git連携**: gitsigns, lazygit, diffview
+- **ファイル操作**: Telescope（ファジーファインダー）、Neo-tree（ファイルツリー）
+- **執筆支援**: Markdown プレビュー、Obsidian 連携
 
-## 構成ファイル
+## 必要要件
 
-| ファイル | 説明 |
-|----------|------|
-| `.vimrc` | Vim本体の設定 |
-| `coc-settings.json` | LSP（coc.nvim）の設定 |
-| `install.sh` | 初期構築スクリプト |
-| `update-config.sh` | 設定反映スクリプト |
+- Neovim 0.9 以上
+- Node.js 16 以上
+- Git
+- [Nerd Font](https://www.nerdfonts.com/)（アイコン表示に必要）
 
-## セットアップ
+## インストール
 
 ```bash
-# 1. リポジトリを取得
 git clone https://github.com/Sina-TehraniFard/dotvim.git
 cd dotvim
-
-# 2. 実行権限を付与
-chmod +x install.sh update-config.sh
-
-# 3. インストール実行
 ./install.sh
 ```
 
-`install.sh` は以下を自動実行します:
+`install.sh` は以下を自動で行います：
 
-- `.vimrc` と `coc-settings.json` の配置
-- vim-plug（プラグインマネージャ）の導入
-- Node.js の確認と自動インストール
-- PHP / Kotlin 用 LSP サーバの導入
-- coc.nvim プラグインのインストール
+- Neovim のインストール（未インストールの場合）
+- 依存ツールのインストール（fd, ripgrep, lazygit, node）
+- Neovim 設定ファイルの配置（`~/.config/nvim`）
+- プラグインの初期インストール
 
-## 設定の更新
-
-設定ファイルを変更した場合:
+## 初回起動後
 
 ```bash
-./update-config.sh
+nvim
 ```
 
-このスクリプトは:
-- 現行設定を `backups/` にバックアップ
-- 最新設定をホームディレクトリへ反映
-
-Vim起動中の場合は `:CocRestart` で即時反映できます。
-
-## 主な機能
-
-### LSP（コード補完・ナビゲーション）
-
-| 操作 | 機能 |
-|------|------|
-| `gd` | 定義へジャンプ |
-| `gy` | 型定義へジャンプ |
-| `gi` | 実装へジャンプ |
-| `gr` | 参照一覧を表示 |
-| `K` | ドキュメントを表示 |
-| `[g` / `]g` | 前後のエラーへ移動 |
-| `Ctrl + Space` | 補完候補を表示 |
-| `<leader>f` | コードフォーマット |
-| `<leader>a` | コードアクション |
-| `<leader>rn` | リネーム |
-
-### ファイル操作
-
-| 操作 | 機能 |
-|------|------|
-| `<leader>e` | ファイルツリー表示/非表示 |
-| `<leader>n` | 現在のファイルをツリーで表示 |
-| `Ctrl + p` | ファイル検索（fzf） |
-| `<leader>b` | バッファ一覧 |
-| `<leader>g` | 文字列検索（ripgrep） |
-| `<leader>h` | 履歴検索 |
-
-### Git連携
-
-| 操作 | 機能 |
-|------|------|
-| `<leader>gs` | Git status |
-| `<leader>gd` | Git diff（分割表示） |
-| `<leader>gb` | Git blame |
-| `<leader>gl` | Git log |
-| `]h` / `[h` | 次/前の変更箇所へ移動 |
-
-### 編集効率化
-
-| 操作 | 機能 |
-|------|------|
-| `gcc` | 行をコメントアウト |
-| `gc` + 動作 | 範囲をコメントアウト |
-| `cs"'` | `"` を `'` に変更 |
-| `ds"` | `"` を削除 |
-| `ysiw"` | 単語を `"` で囲む |
-
-### `<leader>` キーについて
-
-デフォルトは `\` です。`.vimrc` で以下のように設定すると `Space` キーに変更できます:
-
-```vim
-let mapleader=" "
-```
+1. プラグインが自動インストールされます（初回のみ）
+2. `:Mason` でLSPサーバーを確認・インストール
+3. `:checkhealth` で環境をチェック
 
 ## ディレクトリ構成
 
 ```
 dotvim/
-├── .vimrc
-├── coc-settings.json
-├── install.sh
-├── update-config.sh
-├── .gitignore
-└── backups/
+├── nvim/                    # Neovim設定（~/.config/nvimにコピーされる）
+│   ├── init.lua             # エントリーポイント
+│   ├── lazy-lock.json       # プラグインバージョン固定
+│   └── lua/
+│       ├── core/            # 基本設定
+│       │   ├── options.lua  # Neovimオプション
+│       │   ├── keymaps.lua  # キーマップ
+│       │   └── autocmds.lua # 自動コマンド
+│       └── plugins/         # プラグイン設定
+│           ├── init.lua     # lazy.nvim初期化
+│           ├── ui.lua       # UI関連
+│           ├── editor.lua   # エディタ機能
+│           ├── coding.lua   # コーディング支援
+│           ├── git.lua      # Git連携
+│           └── writing.lua  # 執筆支援
+├── docs/                    # ドキュメント
+├── install.sh               # インストールスクリプト
+└── LICENSE
 ```
 
-## 必要要件
+## キーマップ
 
-- Vim 8.0 以上（または Neovim）
-- Node.js 14 以上
-- Git
-- ripgrep（fzfの文字列検索に必要）
+`<leader>` は `Space` キーです。
+
+### ファイル操作
+
+| キー | 機能 |
+|------|------|
+| `<leader>ff` | ファイル検索 |
+| `<leader>fg` | テキスト検索（grep） |
+| `<leader>fb` | バッファ一覧 |
+| `<leader>fr` | 最近開いたファイル |
+| `<leader>e` | ファイルツリー表示/非表示 |
+| `<C-p>` | Gitファイル検索 |
+
+### LSP
+
+| キー | 機能 |
+|------|------|
+| `gd` | 定義へジャンプ |
+| `gr` | 参照一覧 |
+| `K` | ドキュメント表示 |
+| `<leader>rn` | リネーム |
+| `<leader>ca` | コードアクション |
+| `[d` / `]d` | 前後の診断へ移動 |
+
+### Git
+
+| キー | 機能 |
+|------|------|
+| `<leader>gg` | LazyGit |
+| `<leader>gd` | Diffview |
+| `<leader>gh` | ファイル履歴 |
+| `]h` / `[h` | 次/前の変更箇所 |
+
+### 編集
+
+| キー | 機能 |
+|------|------|
+| `gcc` | 行コメントトグル |
+| `gc{motion}` | 範囲コメントトグル |
+| `ys{motion}{char}` | 囲みを追加 |
+| `cs{old}{new}` | 囲みを変更 |
+| `ds{char}` | 囲みを削除 |
 
 ## プラグイン一覧
 
-| プラグイン | 機能 |
-|-----------|------|
-| coc.nvim | LSP補完エンジン |
-| gruvbox | カラースキーム |
-| NERDTree | ファイルツリー |
-| fzf.vim | ファジーファインダー |
-| vim-fugitive | Git操作 |
-| vim-gitgutter | Git差分表示 |
-| vim-commentary | コメントアウト |
-| vim-surround | 括弧・引用符操作 |
-| auto-pairs | 括弧自動補完 |
-| vim-airline | ステータスライン |
+詳細は [docs/plugins.md](docs/plugins.md) を参照してください。
+
+### UI
+- **gruvbox.nvim** - カラースキーム
+- **lualine.nvim** - ステータスライン
+- **noice.nvim** - コマンドライン/メッセージUI改善
+- **nvim-notify** - 通知表示
+
+### エディタ
+- **telescope.nvim** - ファジーファインダー
+- **neo-tree.nvim** - ファイルツリー
+- **which-key.nvim** - キーマップヘルプ
+- **todo-comments.nvim** - TODOコメントハイライト
+
+### コーディング
+- **nvim-treesitter** - シンタックスハイライト
+- **nvim-lspconfig** - LSP設定
+- **mason.nvim** - LSPサーバー管理
+- **nvim-cmp** - 補完エンジン
+- **LuaSnip** - スニペット
+
+### Git
+- **gitsigns.nvim** - Git差分表示
+- **lazygit.nvim** - LazyGit統合
+- **diffview.nvim** - 高度なDiff表示
+
+### 執筆
+- **markdown-preview.nvim** - Markdownプレビュー
+- **obsidian.nvim** - Obsidian連携
+- **render-markdown.nvim** - Markdown装飾表示
+
+## ドキュメント
+
+- [クイックスタート](docs/quickstart.md)
+- [機能一覧](docs/features.md)
+- [キーマップ詳細](docs/keymaps.md)
+- [プラグイン詳細](docs/plugins.md)
+- [Neovimチュートリアル](docs/neovim-tutorial.md)
+
+## カスタマイズ
+
+設定ファイルは `~/.config/nvim/lua/` 以下にあります：
+
+- オプション変更: `core/options.lua`
+- キーマップ追加: `core/keymaps.lua`
+- プラグイン追加: `plugins/` 以下に新規ファイル作成
 
 ## License
 
-MIT License © 2025 Sina Tehrani Fard
-
+MIT License

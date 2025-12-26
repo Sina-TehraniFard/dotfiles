@@ -1,58 +1,50 @@
 # ===================================================================
-# Vim temporary files
+# Neovim
 # ===================================================================
+# Swap, backup, undo files
 *.swp
 *.swo
 *.bak
 *.tmp
-
-# Session, view, and undo files
-Session.vim
-Sessionx.vim
-view/
-views/
-undo/
 *.un~
 
-# ===================================================================
-# vim-plug and coc.nvim generated directories
-# ===================================================================
-# Installed plugins
-plugged/
-# Plugin autoload script
-autoload/
-# coc.nvim extension storage
-coc/extensions/
-# coc.nvim logs and workspace data
-coc-data/
-coc-settings-backup.json
-coc-settings.old.json
+# Session files
+Session.vim
 
 # ===================================================================
-# System or OS-specific files
+# lazy.nvim (plugin manager)
+# ===================================================================
+# Plugins are managed by lazy.nvim and stored in ~/.local/share/nvim/lazy/
+# lazy-lock.json is committed to track exact plugin versions
+
+# ===================================================================
+# Mason (LSP/DAP installer)
+# ===================================================================
+# Mason packages are stored in ~/.local/share/nvim/mason/
+
+# ===================================================================
+# System files
 # ===================================================================
 .DS_Store
 Thumbs.db
 desktop.ini
 
 # ===================================================================
-# Backup or test artifacts
-# ===================================================================
-*.orig
-*.rej
-*.log
-*.out
-*.lock
-
-# ===================================================================
-# Node modules (if coc.nvim installs npm packages locally)
+# Node.js (for LSP servers that require npm)
 # ===================================================================
 node_modules/
 package-lock.json
 yarn.lock
 
 # ===================================================================
-# Other IDE/editor metadata
+# IDE/Editor metadata
 # ===================================================================
 .idea/
 .vscode/
+
+# ===================================================================
+# Misc
+# ===================================================================
+*.log
+*.orig
+*.rej
