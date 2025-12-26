@@ -275,6 +275,7 @@ return {
         { "<leader>g", group = "Git" },
         { "<leader>b", group = "Buffer" },
         { "<leader>c", group = "Code/Quickfix" },
+        { "<leader>d", group = "Database" },
         { "<leader>w", group = "Workspace" },
         { "<leader>r", group = "Rename" },
       })

@@ -27,6 +27,7 @@ require("lazy").setup({
   { import = "plugins.editor" },
   { import = "plugins.git" },
   { import = "plugins.writing" },
+  { import = "plugins.database" },
 }, {
   -- lazy.nvim の設定
   install = {
