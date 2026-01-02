@@ -193,6 +193,16 @@ return {
             ["?"] = "show_help",
             ["<"] = "prev_source",
             [">"] = "next_source",
+            -- パスをクリップボードにコピー（OSC52経由でMacにも対応）
+            ["Y"] = {
+              function(state)
+                local node = state.tree:get_node()
+                local path = node:get_id()
+                require("osc52").copy(path)
+                vim.notify("Copied: " .. path, vim.log.levels.INFO)
+              end,
+              desc = "Copy path to clipboard",
+            },
           },
         },
         filesystem = {
