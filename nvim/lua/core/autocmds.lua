@@ -6,6 +6,27 @@ local augroup = vim.api.nvim_create_augroup
 local autocmd = vim.api.nvim_create_autocmd
 
 -- ======================================================================
+-- Markdownチェックボックス完了時のハイライト（取り消し線＋薄い色）
+-- ======================================================================
+augroup("MarkdownCheckboxHighlight", { clear = true })
+autocmd("ColorScheme", {
+  group = "MarkdownCheckboxHighlight",
+  pattern = "*",
+  callback = function()
+    -- 完了タスクの取り消し線＋グレー表示
+    vim.api.nvim_set_hl(0, "@markup.strikethrough", { strikethrough = true, fg = "#6c7086" })
+    vim.api.nvim_set_hl(0, "RenderMarkdownChecked", { fg = "#a6e3a1" }) -- 緑チェックマーク
+    vim.api.nvim_set_hl(0, "RenderMarkdownUnchecked", { fg = "#f9e2af" }) -- 黄色の未完了
+  end,
+  desc = "Set checkbox highlight for completed tasks",
+})
+
+-- 初回読み込み時にも適用
+vim.api.nvim_set_hl(0, "@markup.strikethrough", { strikethrough = true, fg = "#6c7086" })
+vim.api.nvim_set_hl(0, "RenderMarkdownChecked", { fg = "#a6e3a1" })
+vim.api.nvim_set_hl(0, "RenderMarkdownUnchecked", { fg = "#f9e2af" })
+
+-- ======================================================================
 -- 一般的な自動コマンド
 -- ======================================================================
 
@@ -74,6 +95,7 @@ autocmd("FileType", {
     vim.opt_local.wrap = true
     vim.opt_local.spell = true
     vim.opt_local.spelllang = "en,cjk"
+    vim.opt_local.conceallevel = 2  -- Obsidian装飾表示用
   end,
   desc = "Markdown specific settings",
 })

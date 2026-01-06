@@ -20,6 +20,7 @@ opt.smartcase = true       -- 大文字が含まれる場合は区別する
 
 -- 外観
 opt.termguicolors = true   -- True Color対応
+opt.conceallevel = 2       -- Obsidian/Markdownの装飾表示を有効化
 opt.background = "dark"    -- 暗い背景用
 opt.cursorline = true      -- カーソル行を強調
 opt.signcolumn = "yes"     -- サイン列を常時表示

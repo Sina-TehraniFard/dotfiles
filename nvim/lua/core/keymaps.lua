@@ -96,7 +96,7 @@ keymap("n", "Y", "y$", { desc = "Yank to end of line" })
 -- 診断（Diagnostics）
 keymap("n", "[d", vim.diagnostic.goto_prev, { desc = "Previous diagnostic" })
 keymap("n", "]d", vim.diagnostic.goto_next, { desc = "Next diagnostic" })
-keymap("n", "<leader>d", vim.diagnostic.open_float, { desc = "Show diagnostic" })
+keymap("n", "<leader>xd", vim.diagnostic.open_float, { desc = "Show diagnostic" })
 keymap("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Diagnostic list" })
 
 -- ======================================================================
