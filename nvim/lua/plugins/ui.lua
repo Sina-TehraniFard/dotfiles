@@ -41,6 +41,84 @@ return {
   },
 
   -- ======================================================================
+  -- bufferline.nvim: バッファタブライン
+  -- ======================================================================
+  {
+    "akinsho/bufferline.nvim",
+    version = "*",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    event = "VeryLazy",
+    config = function()
+      require("bufferline").setup({
+        options = {
+          mode = "buffers",
+          themable = true,
+          numbers = "ordinal",
+          close_command = "bdelete! %d",
+          right_mouse_command = "bdelete! %d",
+          left_mouse_command = "buffer %d",
+          indicator = {
+            icon = "▎",
+            style = "icon",
+          },
+          buffer_close_icon = "󰅖",
+          modified_icon = "●",
+          close_icon = "",
+          left_trunc_marker = "",
+          right_trunc_marker = "",
+          max_name_length = 30,
+          max_prefix_length = 15,
+          truncate_names = true,
+          tab_size = 21,
+          diagnostics = "nvim_lsp",
+          diagnostics_update_in_insert = false,
+          diagnostics_indicator = function(count, level)
+            local icon = level:match("error") and " " or " "
+            return " " .. icon .. count
+          end,
+          offsets = {
+            {
+              filetype = "neo-tree",
+              text = "File Explorer",
+              text_align = "center",
+              separator = true,
+            },
+          },
+          color_icons = true,
+          show_buffer_icons = true,
+          show_buffer_close_icons = true,
+          show_close_icon = true,
+          show_tab_indicators = true,
+          show_duplicate_prefix = true,
+          persist_buffer_sort = true,
+          separator_style = "slant",
+          enforce_regular_tabs = false,
+          always_show_bufferline = true,
+          hover = {
+            enabled = true,
+            delay = 200,
+            reveal = { "close" },
+          },
+        },
+      })
+    end,
+    keys = {
+      { "<S-h>", "<cmd>BufferLineCyclePrev<CR>", desc = "Previous buffer" },
+      { "<S-l>", "<cmd>BufferLineCycleNext<CR>", desc = "Next buffer" },
+      { "<leader>bp", "<cmd>BufferLineTogglePin<CR>", desc = "Toggle pin" },
+      { "<leader>bP", "<cmd>BufferLineGroupClose ungrouped<CR>", desc = "Delete non-pinned buffers" },
+      { "<leader>bo", "<cmd>BufferLineCloseOthers<CR>", desc = "Delete other buffers" },
+      { "<leader>br", "<cmd>BufferLineCloseRight<CR>", desc = "Delete buffers to the right" },
+      { "<leader>bl", "<cmd>BufferLineCloseLeft<CR>", desc = "Delete buffers to the left" },
+      { "<leader>1", "<cmd>BufferLineGoToBuffer 1<CR>", desc = "Go to buffer 1" },
+      { "<leader>2", "<cmd>BufferLineGoToBuffer 2<CR>", desc = "Go to buffer 2" },
+      { "<leader>3", "<cmd>BufferLineGoToBuffer 3<CR>", desc = "Go to buffer 3" },
+      { "<leader>4", "<cmd>BufferLineGoToBuffer 4<CR>", desc = "Go to buffer 4" },
+      { "<leader>5", "<cmd>BufferLineGoToBuffer 5<CR>", desc = "Go to buffer 5" },
+    },
+  },
+
+  -- ======================================================================
   -- lualine.nvim: ステータスライン
   -- ======================================================================
   {
@@ -83,34 +161,6 @@ return {
           lualine_x = { "location" },
           lualine_y = {},
           lualine_z = {},
-        },
-        tabline = {
-          lualine_a = {
-            {
-              "buffers",
-              show_filename_only = true,
-              hide_filename_extension = false,
-              show_modified_status = true,
-              mode = 2, -- 0: Shows buffer name, 1: Shows buffer index, 2: Shows buffer name + buffer index
-              max_length = vim.o.columns * 2 / 3,
-              filetype_names = {
-                TelescopePrompt = "Telescope",
-                ["neo-tree"] = "Neo-tree",
-                lazy = "Lazy",
-                mason = "Mason",
-              },
-              symbols = {
-                modified = " ●",
-                alternate_file = "",
-                directory = "",
-              },
-            },
-          },
-          lualine_b = {},
-          lualine_c = {},
-          lualine_x = {},
-          lualine_y = {},
-          lualine_z = { "tabs" },
         },
         extensions = { "neo-tree", "lazy" },
       })
