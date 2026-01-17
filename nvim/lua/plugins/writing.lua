@@ -3,6 +3,11 @@
 -- Markdown + Mermaid + Obsidian
 -- ======================================================================
 
+-- 環境変数から設定値を取得（未設定時はデフォルト値を使用）
+local obsidian_vault = os.getenv("OBSIDIAN_VAULT") or "~/Documents/ObsidianVault"
+local mkdp_host = os.getenv("MKDP_HOST") or "REDACTED"
+local mkdp_port = os.getenv("MKDP_PORT") or "8888"
+
 return {
   -- ======================================================================
   -- nvim-osc52: SSH経由でもMacのクリップボードにコピー
@@ -32,7 +37,7 @@ return {
       { "<leader>mp", "<cmd>MarkdownPreviewToggle<cr>", desc = "Markdown preview toggle" },
       { "<leader>mu", function()
         local bufnr = vim.api.nvim_get_current_buf()
-        local url = "http://REDACTED:8888/page/" .. bufnr
+        local url = "http://" .. mkdp_host .. ":" .. mkdp_port .. "/page/" .. bufnr
         require("osc52").copy(url)
         vim.notify("Copied: " .. url, vim.log.levels.INFO)
       end, desc = "Copy preview URL to Mac", ft = "markdown" },
@@ -43,8 +48,8 @@ return {
       vim.g.mkdp_refresh_slow = 0
       vim.g.mkdp_command_for_global = 0
       vim.g.mkdp_open_to_the_world = 1  -- リモートアクセス許可
-      vim.g.mkdp_open_ip = "REDACTED"  -- LinuxサーバーのIP（Macからアクセス用）
-      vim.g.mkdp_port = "8888"  -- 固定ポート
+      vim.g.mkdp_open_ip = mkdp_host  -- LinuxサーバーのIP（Macからアクセス用）
+      vim.g.mkdp_port = mkdp_port  -- 固定ポート
       vim.g.mkdp_browser = "none"  -- ブラウザを自動で開かない
       vim.g.mkdp_echo_preview_url = 1  -- URLを表示
       vim.g.mkdp_page_title = "${name}"
@@ -98,7 +103,7 @@ return {
         workspaces = {
           {
             name = "notes",
-            path = "~/Documents/ObsidianVault",
+            path = obsidian_vault,
           },
         },
 
