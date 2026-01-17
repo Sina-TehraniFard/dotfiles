@@ -5,7 +5,6 @@
 local opt = vim.opt
 
 -- 行番号表示
-opt.number = true
 opt.relativenumber = true  -- 相対行番号（カーソル位置からの距離）
 
 -- タブ・インデント
@@ -16,8 +15,6 @@ opt.softtabstop = 4        -- <Tab>キー押下時のスペース数
 opt.smartindent = true     -- スマートインデント
 
 -- 検索
-opt.hlsearch = true        -- 検索結果をハイライト
-opt.incsearch = true       -- インクリメンタルサーチ
 opt.ignorecase = true      -- 大文字小文字を区別しない
 opt.smartcase = true       -- 大文字が含まれる場合は区別する
 
@@ -64,7 +61,6 @@ opt.completeopt = { "menu", "menuone", "noselect" }  -- 補完メニュー設定
 
 -- コマンドライン
 opt.history = 1000         -- コマンド履歴
-opt.wildmenu = true        -- コマンドライン補完
 opt.wildmode = "longest:full,full"
 
 -- ステータスライン

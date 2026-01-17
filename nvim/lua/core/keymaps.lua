@@ -51,8 +51,7 @@ keymap("n", "<C-Right>", "<cmd>vertical resize +2<CR>", { desc = "Increase windo
 -- バッファ操作
 -- ======================================================================
 
-keymap("n", "<S-h>", "<cmd>bprevious<CR>", { desc = "Previous buffer" })
-keymap("n", "<S-l>", "<cmd>bnext<CR>", { desc = "Next buffer" })
+-- バッファ切り替えは bufferline.nvim で設定（<S-h>, <S-l>）
 keymap("n", "<leader>bd", "<cmd>bdelete<CR>", { desc = "Delete buffer" })
 
 -- ======================================================================
@@ -86,19 +85,13 @@ keymap("n", "Y", "y$", { desc = "Yank to end of line" })
 -- ======================================================================
 
 -- ファイルエクスプローラ（neo-tree）
-keymap("n", "<leader>e", "<cmd>Neotree toggle<CR>", { desc = "Toggle file explorer" })
-keymap("n", "<leader>o", "<cmd>Neotree focus<CR>", { desc = "Focus file explorer" })
+-- プラグイン側で設定（plugins/editor.lua）
 
 -- Telescope（ファジーファインダー）
-keymap("n", "<leader>ff", "<cmd>Telescope find_files<CR>", { desc = "Find files" })
-keymap("n", "<leader>fg", "<cmd>Telescope live_grep<CR>", { desc = "Live grep" })
-keymap("n", "<leader>fb", "<cmd>Telescope buffers<CR>", { desc = "Find buffers" })
-keymap("n", "<leader>fh", "<cmd>Telescope help_tags<CR>", { desc = "Help tags" })
-keymap("n", "<leader>fr", "<cmd>Telescope oldfiles<CR>", { desc = "Recent files" })
-keymap("n", "<C-p>", "<cmd>Telescope git_files<CR>", { desc = "Git files" })
+-- プラグイン側で設定（plugins/editor.lua）
 
 -- Git（LazyGit）
-keymap("n", "<leader>gg", "<cmd>LazyGit<CR>", { desc = "Open LazyGit" })
+-- プラグイン側で設定（plugins/git.lua）
 
 -- 診断（Diagnostics）
 keymap("n", "[d", vim.diagnostic.goto_prev, { desc = "Previous diagnostic" })

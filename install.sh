@@ -184,40 +184,7 @@ EOF
 }
 
 # ============================================================
-# 6. Vim 設定のインストール（オプション、後方互換用）
-# ============================================================
-
-install_vim_config() {
-  print_status "Installing Vim configuration (for backward compatibility)..."
-
-  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-  # .vimrc
-  if [ -f "$SCRIPT_DIR/.vimrc" ]; then
-    if [ -f "$HOME/.vimrc" ]; then
-      cp "$HOME/.vimrc" "$HOME/.vimrc.backup.$(date +%Y%m%d%H%M%S)"
-    fi
-    cp "$SCRIPT_DIR/.vimrc" "$HOME/.vimrc"
-  fi
-
-  # vim-plug for Vim
-  if [ ! -f ~/.vim/autoload/plug.vim ]; then
-    print_status "Installing vim-plug..."
-    curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
-         https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-  fi
-
-  # coc-settings.json
-  if [ -f "$SCRIPT_DIR/coc-settings.json" ]; then
-    mkdir -p ~/.vim
-    cp "$SCRIPT_DIR/coc-settings.json" ~/.vim/
-  fi
-
-  print_status "Vim config installed"
-}
-
-# ============================================================
-# 7. プラグインのインストール
+# 6. プラグインのインストール
 # ============================================================
 
 install_plugins() {
@@ -251,9 +218,6 @@ main() {
 
   # Obsidian Vaultのセットアップ
   setup_obsidian_vault
-
-  # Vim設定のインストール（後方互換）
-  install_vim_config
 
   # プラグインのインストール
   install_plugins
