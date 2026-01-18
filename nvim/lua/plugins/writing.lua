@@ -5,7 +5,7 @@
 
 -- 環境変数から設定値を取得（未設定時はデフォルト値を使用）
 local obsidian_vault = os.getenv("OBSIDIAN_VAULT") or "~/Documents/ObsidianVault"
-local mkdp_host = os.getenv("MKDP_HOST") or "REDACTED"
+local mkdp_host = os.getenv("MKDP_HOST") or "127.0.0.1"
 local mkdp_port = os.getenv("MKDP_PORT") or "8888"
 
 return {
@@ -14,6 +14,7 @@ return {
   -- ======================================================================
   {
     "ojroques/nvim-osc52",
+    lazy = true,
     config = function()
       require("osc52").setup({
         max_length = 0,

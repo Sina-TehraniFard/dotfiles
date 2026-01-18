@@ -41,17 +41,20 @@ opt.clipboard = "unnamedplus"  -- システムクリップボードと連携
 
 -- OSC 52 クリップボード（SSH経由でもローカルPCにコピー可能）
 if vim.env.SSH_TTY or vim.env.WEZTERM_PANE then
-  vim.g.clipboard = {
-    name = "OSC 52",
-    copy = {
-      ["+"] = require("vim.ui.clipboard.osc52").copy("+"),
-      ["*"] = require("vim.ui.clipboard.osc52").copy("*"),
-    },
-    paste = {
-      ["+"] = require("vim.ui.clipboard.osc52").paste("+"),
-      ["*"] = require("vim.ui.clipboard.osc52").paste("*"),
-    },
-  }
+  local ok, osc52 = pcall(require, "vim.ui.clipboard.osc52")
+  if ok then
+    vim.g.clipboard = {
+      name = "OSC 52",
+      copy = {
+        ["+"] = osc52.copy("+"),
+        ["*"] = osc52.copy("*"),
+      },
+      paste = {
+        ["+"] = osc52.paste("+"),
+        ["*"] = osc52.paste("*"),
+      },
+    }
+  end
 end
 opt.updatetime = 100       -- 更新間隔（ミリ秒）
 opt.timeoutlen = 300       -- キーシーケンスのタイムアウト

@@ -5,7 +5,16 @@
 #  Purpose: Automated setup of Neovim + LSPs
 # ============================================================
 
-set -e
+set -euo pipefail
+
+# 一時ディレクトリのクリーンアップ用trap
+TEMP_DIR=""
+cleanup() {
+  if [ -n "${TEMP_DIR:-}" ] && [ -d "$TEMP_DIR" ]; then
+    rm -rf "$TEMP_DIR"
+  fi
+}
+trap cleanup EXIT
 
 # カラー出力用
 RED='\033[0;31m'
@@ -23,6 +32,38 @@ print_warning() {
 
 print_error() {
   echo -e "${RED}==> ERROR: $1${NC}"
+}
+
+# ============================================================
+# ヘルプ表示
+# ============================================================
+
+show_help() {
+  cat << 'HELP'
+Usage: ./install.sh [OPTIONS]
+
+Neovim/Vim Environment Bootstrap Script
+
+OPTIONS:
+  -y, --yes     確認プロンプトをスキップして自動実行
+  -h, --help    このヘルプメッセージを表示
+
+ENVIRONMENT VARIABLES:
+  OBSIDIAN_VAULT    Obsidian Vaultのパス（デフォルト: ~/Documents/ObsidianVault）
+  XDG_CONFIG_HOME   Neovim設定のインストール先（デフォルト: ~/.config）
+
+EXAMPLES:
+  ./install.sh              # 対話モードでインストール
+  ./install.sh -y           # 確認をスキップしてインストール
+  OBSIDIAN_VAULT=~/notes ./install.sh  # カスタムVaultパスでインストール
+
+このスクリプトは以下の処理を行います：
+  1. 依存ツールのインストール（Neovim, fd, ripgrep, lazygit, node）
+  2. 既存のNeovim設定をバックアップ
+  3. 新しいNeovim設定を ~/.config/nvim にコピー
+  4. Obsidian Vaultの作成
+  5. Neovimプラグインのインストール
+HELP
 }
 
 # ============================================================
@@ -71,20 +112,39 @@ install_dependencies() {
     if command -v apt >/dev/null 2>&1; then
       print_status "Installing via apt..."
 
+      # sudoが利用可能か、またはroot権限があるかチェック
+      run_privileged() {
+        if [ "$(id -u)" -eq 0 ]; then
+          "$@"
+        elif command -v sudo >/dev/null 2>&1; then
+          sudo "$@"
+        else
+          print_error "Root privileges required but sudo is not available"
+          return 1
+        fi
+      }
+
       # Neovim (最新版のためPPA追加)
       if ! command -v nvim >/dev/null 2>&1; then
         print_status "Installing Neovim..."
-        sudo apt update
-        sudo apt install -y software-properties-common
-        sudo add-apt-repository -y ppa:neovim-ppa/unstable
-        sudo apt update
-        sudo apt install -y neovim
+        print_warning "This will add the Neovim PPA (ppa:neovim-ppa/unstable) to install the latest version."
+        read -p "Do you want to continue? [y/N] " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+          run_privileged apt update
+          run_privileged apt install -y software-properties-common
+          run_privileged add-apt-repository -y ppa:neovim-ppa/unstable
+          run_privileged apt update
+          run_privileged apt install -y neovim
+        else
+          print_warning "Skipping Neovim installation from PPA"
+        fi
       else
         print_status "Neovim found: $(nvim --version | head -n1)"
       fi
 
       # 依存ツール
-      sudo apt install -y fd-find ripgrep nodejs npm git curl
+      run_privileged apt install -y fd-find ripgrep nodejs npm git curl
 
       # fdのエイリアス（Ubuntu/Debianではfdfindという名前）
       if command -v fdfind >/dev/null 2>&1 && ! command -v fd >/dev/null 2>&1; then
@@ -96,11 +156,24 @@ install_dependencies() {
       # lazygit
       if ! command -v lazygit >/dev/null 2>&1; then
         print_status "Installing lazygit..."
-        LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
-        curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz"
-        tar xf lazygit.tar.gz lazygit
-        sudo install lazygit /usr/local/bin
-        rm lazygit lazygit.tar.gz
+        LAZYGIT_VERSION=$(curl -fsSL "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | sed -n 's/.*"tag_name": "v\([^"]*\)".*/\1/p')
+
+        # アーキテクチャを動的に検出
+        MACHINE_ARCH=$(uname -m)
+        case "$MACHINE_ARCH" in
+          x86_64)  LAZYGIT_ARCH="x86_64" ;;
+          aarch64) LAZYGIT_ARCH="arm64" ;;
+          arm64)   LAZYGIT_ARCH="arm64" ;;
+          *)       print_error "Unsupported architecture: $MACHINE_ARCH"; exit 1 ;;
+        esac
+
+        # 一時ディレクトリで作業
+        TEMP_DIR=$(mktemp -d)
+        curl -fsSL -o "$TEMP_DIR/lazygit.tar.gz" "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_${LAZYGIT_ARCH}.tar.gz"
+        tar xf "$TEMP_DIR/lazygit.tar.gz" -C "$TEMP_DIR" lazygit
+        run_privileged install "$TEMP_DIR/lazygit" /usr/local/bin
+        rm -rf "$TEMP_DIR"
+        TEMP_DIR=""
       fi
     else
       print_warning "apt not found. Please install dependencies manually."
@@ -159,7 +232,8 @@ install_neovim_config() {
 setup_obsidian_vault() {
   print_status "Setting up Obsidian Vault..."
 
-  VAULT_DIR="$HOME/Documents/ObsidianVault"
+  # 環境変数 OBSIDIAN_VAULT が設定されていればそれを使用、なければデフォルト
+  VAULT_DIR="${OBSIDIAN_VAULT:-$HOME/Documents/ObsidianVault}"
 
   if [ ! -d "$VAULT_DIR" ]; then
     mkdir -p "$VAULT_DIR"/{notes,daily,templates,attachments}
@@ -197,15 +271,58 @@ install_plugins() {
 }
 
 # ============================================================
-# メイン処理
+# 7. 実行前の確認プロンプト
 # ============================================================
 
-main() {
+confirm_installation() {
   echo ""
   echo "============================================================"
   echo "  Neovim Environment Bootstrap Script"
   echo "============================================================"
   echo ""
+  echo "このスクリプトは以下の処理を行います："
+  echo ""
+  echo "  1. 依存ツールのインストール（Neovim, fd, ripgrep, lazygit, node）"
+  echo "  2. 既存のNeovim設定をバックアップ"
+  echo "  3. 新しいNeovim設定を ~/.config/nvim にコピー"
+  echo "  4. Obsidian Vaultの作成（\${OBSIDIAN_VAULT:-~/Documents/ObsidianVault}）"
+  echo "  5. Neovimプラグインのインストール"
+  echo ""
+  echo "注意: 既存のNeovim設定がある場合、自動的にバックアップされます。"
+  echo ""
+
+  # -y オプションで確認をスキップ
+  if [ "${1:-}" = "-y" ] || [ "${1:-}" = "--yes" ]; then
+    return 0
+  fi
+
+  read -p "続行しますか？ [y/N]: " response
+  case "$response" in
+    [yY][eE][sS]|[yY])
+      return 0
+      ;;
+    *)
+      print_warning "インストールがキャンセルされました。"
+      exit 0
+      ;;
+  esac
+}
+
+# ============================================================
+# メイン処理
+# ============================================================
+
+main() {
+  # --help オプションのチェック
+  case "${1:-}" in
+    -h|--help)
+      show_help
+      exit 0
+      ;;
+  esac
+
+  # 確認プロンプト
+  confirm_installation "$@"
 
   # 依存ツールのインストール
   install_dependencies
@@ -233,7 +350,7 @@ main() {
   echo "  3. Run :Mason to install language servers"
   echo "  4. Run :checkhealth to verify setup"
   echo ""
-  echo "Obsidian Vault location: ~/Documents/ObsidianVault"
+  echo "Obsidian Vault location: ${OBSIDIAN_VAULT:-~/Documents/ObsidianVault}"
   echo "Tutorial: docs/neovim-tutorial.md"
   echo ""
 }
