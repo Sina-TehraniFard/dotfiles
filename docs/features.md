@@ -11,11 +11,12 @@
 3. [エディタ機能](#エディタ機能)
 4. [コーディング・LSP](#コーディングlsp)
 5. [Git連携](#git連携)
-6. [ライティング・Markdown](#ライティングmarkdown)
-7. [基本設定](#基本設定)
-8. [キーマップ一覧](#キーマップ一覧)
-9. [自動コマンド](#自動コマンド)
-10. [インストール方法](#インストール方法)
+6. [データベース接続](#データベース接続)
+7. [ライティング・Markdown](#ライティングmarkdown)
+8. [基本設定](#基本設定)
+9. [キーマップ一覧](#キーマップ一覧)
+10. [自動コマンド](#自動コマンド)
+11. [インストール方法](#インストール方法)
 
 ---
 
@@ -41,10 +42,7 @@ dotvim/
 │           ├── coding.lua    # コーディング関連プラグイン
 │           ├── git.lua       # Git関連プラグイン
 │           └── writing.lua   # ライティング関連プラグイン
-├── .vimrc                    # 従来のVim設定（後方互換）
-├── coc-settings.json         # coc.nvim設定（後方互換）
-├── install.sh                # インストールスクリプト
-└── update-config.sh          # 設定更新スクリプト
+└── install.sh                # インストールスクリプト
 ```
 
 ### プラグインマネージャ
@@ -392,6 +390,60 @@ bash, c, css, dockerfile, go, html, java, javascript, json, kotlin, lua, markdow
 
 ---
 
+## データベース接続
+
+vim-dadbod を使用して、Neovim 内から直接データベースに接続してクエリを実行できます。
+
+### 対応データベース
+
+- PostgreSQL
+- MySQL / MariaDB
+- SQLite
+- SQL Server
+- MongoDB
+- Redis
+
+### 接続方法
+
+1. `<leader>du` で DBUI を開く
+2. `<leader>da` で新しい接続を追加
+3. 接続URL形式で入力（例: `postgresql://user:pass@localhost/dbname`）
+
+**接続URL例:**
+```
+# PostgreSQL
+postgresql://username:password@localhost:5432/database_name
+
+# MySQL
+mysql://username:password@localhost:3306/database_name
+
+# SQLite
+sqlite:///path/to/database.db
+```
+
+### キーマップ
+
+| キー | 機能 |
+|------|------|
+| `<leader>du` | DBUIを開く/閉じる |
+| `<leader>da` | DB接続を追加 |
+| `<leader>df` | DBバッファを検索 |
+| `<leader>dr` | DBバッファをリネーム |
+| `<leader>dl` | 最後のクエリ情報 |
+
+### DBUI内の操作
+
+- `<CR>` - テーブル選択 / クエリ実行
+- `R` - 更新
+- `d` - 接続を削除
+- `A` - 接続を追加
+
+### SQL補完
+
+SQLファイル編集時、接続先データベースのテーブル名やカラム名が自動補完されます。
+
+---
+
 ## ライティング・Markdown
 
 ### Markdownプレビュー: markdown-preview.nvim
@@ -484,66 +536,7 @@ Markdown文書をエディタ内で装飾表示します。
 
 ## キーマップ一覧
 
-### 基本操作
-
-| キー | モード | 機能 |
-|------|--------|------|
-| `jk` | Insert | ノーマルモードへ戻る |
-| `<Esc>` | Normal | 検索ハイライトを消す |
-| `<C-s>` | Normal/Insert | ファイル保存 |
-
-### クリップボード操作
-
-| キー | モード | 機能 |
-|------|--------|------|
-| `<C-c>` | Visual | コピー |
-| `<C-v>` | Normal/Insert/Visual | ペースト |
-
-### ウィンドウ操作
-
-| キー | 機能 |
-|------|------|
-| `<C-h>` | 左のウィンドウへ移動 |
-| `<C-j>` | 下のウィンドウへ移動 |
-| `<C-k>` | 上のウィンドウへ移動 |
-| `<C-l>` | 右のウィンドウへ移動 |
-| `<C-Up>` | ウィンドウの高さを増やす |
-| `<C-Down>` | ウィンドウの高さを減らす |
-| `<C-Left>` | ウィンドウの幅を減らす |
-| `<C-Right>` | ウィンドウの幅を増やす |
-
-### バッファ操作
-
-| キー | 機能 |
-|------|------|
-| `<S-h>` | 前のバッファ |
-| `<S-l>` | 次のバッファ |
-| `<leader>bd` | バッファを閉じる |
-
-### 行操作
-
-| キー | モード | 機能 |
-|------|--------|------|
-| `<A-j>` | Normal/Insert/Visual | 行を下に移動 |
-| `<A-k>` | Normal/Insert/Visual | 行を上に移動 |
-| `<` | Visual | インデントを減らす（選択維持） |
-| `>` | Visual | インデントを増やす（選択維持） |
-
-### テキスト操作
-
-| キー | モード | 機能 |
-|------|--------|------|
-| `p` | Visual | ペースト（レジスタ上書きなし） |
-| `Y` | Normal | 行末までヤンク |
-
-### Quickfix
-
-| キー | 機能 |
-|------|------|
-| `<leader>co` | Quickfixを開く |
-| `<leader>cc` | Quickfixを閉じる |
-| `[q` | 前のQuickfix項目 |
-| `]q` | 次のQuickfix項目 |
+全てのキーマップの詳細は [keymaps.md](keymaps.md) を参照してください。
 
 ---
 
@@ -607,12 +600,7 @@ chmod +x install.sh
    - `~/Documents/ObsidianVault` を作成
    - デイリーノートテンプレートを配置
 
-4. **Vim設定のコピー（後方互換）**
-   - `.vimrc` を配置
-   - vim-plug をインストール
-   - `coc-settings.json` を配置
-
-5. **プラグインのインストール**
+4. **プラグインのインストール**
    - lazy.nvim によるプラグイン自動インストール
 
 ### 初回起動後
@@ -622,14 +610,3 @@ chmod +x install.sh
 3. `:Mason` でLSPサーバーをインストール
 4. `:checkhealth` で設定を確認
 
----
-
-## 設定の更新
-
-設定ファイルを変更した後:
-
-```bash
-./update-config.sh
-```
-
-このスクリプトは現行設定をバックアップしてから最新設定を反映します。

@@ -1,6 +1,13 @@
 # dotvim
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Neovim](https://img.shields.io/badge/Neovim-0.9+-brightgreen.svg)](https://neovim.io/)
+
 Neovim を IDE 化するための設定です。macOS / Linux に対応しています。
+
+<!-- TODO: スクリーンショットを追加
+![dotvim screenshot](./docs/images/screenshot.png)
+-->
 
 ## 特徴
 
@@ -17,6 +24,36 @@ Neovim を IDE 化するための設定です。macOS / Linux に対応してい
 - Node.js 16 以上
 - Git
 - [Nerd Font](https://www.nerdfonts.com/)（アイコン表示に必要）
+
+### Nerd Font のインストール
+
+アイコンを正しく表示するには Nerd Font が必要です。
+
+**おすすめフォント:**
+- [JetBrainsMono Nerd Font](https://github.com/ryanoasis/nerd-fonts/releases) - プログラミング向けの読みやすいフォント
+- [Hack Nerd Font](https://github.com/ryanoasis/nerd-fonts/releases) - シンプルで視認性の高いフォント
+
+**インストール方法:**
+
+```bash
+# macOS (Homebrew)
+brew tap homebrew/cask-fonts
+brew install --cask font-jetbrains-mono-nerd-font
+
+# Linux (手動インストール)
+mkdir -p ~/.local/share/fonts
+cd ~/.local/share/fonts
+curl -fLo "JetBrainsMono.zip" https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/JetBrainsMono.zip
+unzip JetBrainsMono.zip
+fc-cache -fv
+```
+
+インストール後、ターミナルのフォント設定を変更してください。
+
+### オプション要件
+
+- **Obsidian** - obsidian.nvim を使用する場合に必要。[Obsidian公式サイト](https://obsidian.md/)からインストールし、`~/Documents/ObsidianVault` にVaultを作成してください
+- **lazygit** - Git UI統合に必要（install.shで自動インストール）
 
 ## インストール
 
@@ -128,6 +165,7 @@ dotvim/
 
 ### UI
 - **gruvbox.nvim** - カラースキーム
+- **bufferline.nvim** - バッファタブライン
 - **lualine.nvim** - ステータスライン
 - **noice.nvim** - コマンドライン/メッセージUI改善
 - **nvim-notify** - 通知表示
@@ -160,6 +198,34 @@ dotvim/
 - **vim-dadbod-ui** - DBクライアントUI
 - **vim-dadbod-completion** - SQL補完
 
+## アンインストール
+
+dotvim を完全に削除するには、以下のコマンドを実行します：
+
+```bash
+# Neovim設定を削除
+rm -rf ~/.config/nvim
+
+# プラグインデータを削除
+rm -rf ~/.local/share/nvim
+
+# キャッシュを削除
+rm -rf ~/.cache/nvim
+
+# バックアップがある場合は復元
+# mv ~/.config/nvim.backup.YYYYMMDDHHMMSS ~/.config/nvim
+```
+
+**注意:** 上記のコマンドは全てのNeovim関連データを削除します。必要に応じてバックアップを取ってから実行してください。
+
+## トラブルシューティング
+
+問題が発生した場合は、以下を確認してください：
+
+1. `:checkhealth` を実行して環境をチェック
+2. プラグインの更新: `:Lazy sync`
+3. LSPサーバーの再インストール: `:Mason` で該当サーバーを再インストール
+
 ## ドキュメント
 
 - [クイックスタート](docs/quickstart.md)
@@ -178,4 +244,4 @@ dotvim/
 
 ## License
 
-MIT License
+[MIT License](LICENSE)
