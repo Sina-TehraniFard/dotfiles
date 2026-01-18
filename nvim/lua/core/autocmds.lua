@@ -16,7 +16,7 @@ autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
   pattern = "*",
   callback = function()
     if vim.fn.mode() ~= "c" then
-      vim.cmd("checktime")
+      vim.cmd.checktime()
     end
   end,
   desc = "Check if file changed outside of Neovim",
@@ -78,48 +78,18 @@ autocmd("FileType", {
   desc = "Markdown specific settings",
 })
 
--- JSON
+-- 2スペースインデントのファイルタイプ（JSON, YAML, Lua, Web開発系）
 autocmd("FileType", {
   group = "FileTypeSettings",
-  pattern = "json",
+  pattern = {
+    "json", "yaml", "lua",
+    "html", "css", "javascript", "typescript", "javascriptreact", "typescriptreact",
+  },
   callback = function()
     vim.opt_local.tabstop = 2
     vim.opt_local.shiftwidth = 2
   end,
-  desc = "JSON specific settings",
-})
-
--- YAML
-autocmd("FileType", {
-  group = "FileTypeSettings",
-  pattern = "yaml",
-  callback = function()
-    vim.opt_local.tabstop = 2
-    vim.opt_local.shiftwidth = 2
-  end,
-  desc = "YAML specific settings",
-})
-
--- Lua
-autocmd("FileType", {
-  group = "FileTypeSettings",
-  pattern = "lua",
-  callback = function()
-    vim.opt_local.tabstop = 2
-    vim.opt_local.shiftwidth = 2
-  end,
-  desc = "Lua specific settings",
-})
-
--- HTML/CSS/JavaScript/TypeScript
-autocmd("FileType", {
-  group = "FileTypeSettings",
-  pattern = { "html", "css", "javascript", "typescript", "javascriptreact", "typescriptreact" },
-  callback = function()
-    vim.opt_local.tabstop = 2
-    vim.opt_local.shiftwidth = 2
-  end,
-  desc = "Web development specific settings",
+  desc = "2-space indent for JSON, YAML, Lua, and web development files",
 })
 
 -- ======================================================================
@@ -174,6 +144,9 @@ autocmd("BufReadPre", {
       vim.opt_local.filetype = ""
       vim.opt_local.undofile = false
       vim.opt_local.swapfile = false
+      -- NOTE: vim.opt_local.loadplugins はバッファローカルではなくグローバル設定のため、
+      -- ここでの設定は既にロード済みのプラグインには影響しません。
+      -- 大きなファイルでは syntax と filetype を無効化することで十分な効果が得られます。
       vim.opt_local.loadplugins = false
     end
   end,

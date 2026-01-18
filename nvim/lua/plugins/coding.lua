@@ -13,7 +13,8 @@ return {
     build = ":TSUpdate",
     event = { "BufReadPost", "BufNewFile" },
     dependencies = {
-      "nvim-treesitter/nvim-treesitter-textobjects",
+      -- NOTE: treesitter-textobjects の設定は nvim-treesitter の config 内で行っています
+      { "nvim-treesitter/nvim-treesitter-textobjects", branch = "master" },
     },
     config = function()
       ---@diagnostic disable-next-line: missing-fields
@@ -80,15 +81,6 @@ return {
   },
 
   -- ======================================================================
-  -- nvim-treesitter-textobjects: テキストオブジェクト
-  -- ======================================================================
-  {
-    "nvim-treesitter/nvim-treesitter-textobjects",
-    branch = "master",
-    lazy = true,
-  },
-
-  -- ======================================================================
   -- mason.nvim: LSPサーバー管理
   -- ======================================================================
   {
@@ -146,6 +138,9 @@ return {
       "williamboman/mason.nvim",
       "williamboman/mason-lspconfig.nvim",
       "hrsh7th/cmp-nvim-lsp",
+      -- TODO: neodev.nvim は非推奨になりました。folke/lazydev.nvim への移行を検討してください。
+      -- lazydev.nvim は LuaLS と連携し、より高速で正確な補完を提供します。
+      -- 参照: https://github.com/folke/lazydev.nvim
       { "folke/neodev.nvim", opts = {} }, -- Neovim Lua API補完
     },
     config = function()

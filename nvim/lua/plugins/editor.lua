@@ -194,6 +194,7 @@ return {
             ["<"] = "prev_source",
             [">"] = "next_source",
             -- パスをクリップボードにコピー（OSC52経由でMacにも対応）
+            -- NOTE: この機能は writing.lua の nvim-osc52 プラグインに依存しています
             ["Y"] = {
               function(state)
                 local node = state.tree:get_node()
