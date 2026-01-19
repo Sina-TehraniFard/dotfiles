@@ -77,6 +77,13 @@ opt.title = true           -- タイトルバーにファイル名を表示
 opt.list = true
 opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
 
+-- 折りたたみ（Treesitterベース）
+opt.foldmethod = "expr"
+opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+opt.foldlevel = 99         -- 起動時は全て展開
+opt.foldlevelstart = 99    -- ファイルを開いた時も全て展開
+opt.foldenable = true      -- 折りたたみを有効化
+
 -- リーダーキーの設定（keymaps.luaより前に設定が必要）
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
