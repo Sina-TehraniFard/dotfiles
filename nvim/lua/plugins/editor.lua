@@ -353,4 +353,53 @@ return {
       })
     end,
   },
+
+  -- ======================================================================
+  -- vim-illuminate: カーソル下の単語をハイライト
+  -- ======================================================================
+  {
+    "RRethy/vim-illuminate",
+    event = { "BufReadPost", "BufNewFile" },
+    config = function()
+      require("illuminate").configure({
+        -- ハイライトまでの遅延時間（ミリ秒）
+        delay = 200,
+        -- 大きなファイルでは無効化（行数）
+        large_file_cutoff = 2000,
+        -- 大きなファイルで無効化する機能
+        large_file_overrides = nil,
+        -- ハイライトのプロバイダー（優先度順）
+        providers = {
+          "lsp",
+          "treesitter",
+          "regex",
+        },
+        -- 除外するファイルタイプ
+        filetypes_denylist = {
+          "neo-tree",
+          "Trouble",
+          "lazy",
+          "mason",
+          "help",
+          "dashboard",
+          "TelescopePrompt",
+        },
+        -- 除外するモード
+        modes_denylist = {},
+        -- アンダーカーソルのみハイライト（他の出現箇所もハイライト）
+        under_cursor = true,
+        -- 最小文字数（短い単語は無視）
+        min_count_to_highlight = 1,
+      })
+
+      -- ハイライトグループの設定
+      vim.api.nvim_set_hl(0, "IlluminatedWordText", { link = "Visual" })
+      vim.api.nvim_set_hl(0, "IlluminatedWordRead", { link = "Visual" })
+      vim.api.nvim_set_hl(0, "IlluminatedWordWrite", { link = "Visual" })
+    end,
+    keys = {
+      { "]]", function() require("illuminate").goto_next_reference(true) end, desc = "Next reference" },
+      { "[[", function() require("illuminate").goto_prev_reference(true) end, desc = "Previous reference" },
+    },
+  },
 }

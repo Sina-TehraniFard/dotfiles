@@ -175,6 +175,7 @@ dotvim/
 - **neo-tree.nvim** - ファイルツリー
 - **which-key.nvim** - キーマップヘルプ
 - **todo-comments.nvim** - TODOコメントハイライト
+- **vim-illuminate** - 同一単語ハイライト
 
 ### コーディング
 - **nvim-treesitter** - シンタックスハイライト
