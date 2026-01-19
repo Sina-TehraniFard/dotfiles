@@ -113,3 +113,18 @@ keymap("n", "<leader>co", "<cmd>copen<CR>", { desc = "Open quickfix" })
 keymap("n", "<leader>cc", "<cmd>cclose<CR>", { desc = "Close quickfix" })
 keymap("n", "[q", "<cmd>cprev<CR>", { desc = "Previous quickfix" })
 keymap("n", "]q", "<cmd>cnext<CR>", { desc = "Next quickfix" })
+
+-- ======================================================================
+-- フォーマット
+-- ======================================================================
+
+-- 選択範囲をフォーマット
+keymap("v", "<leader>f", function()
+  vim.lsp.buf.format({
+    async = true,
+    range = {
+      ["start"] = vim.api.nvim_buf_get_mark(0, "<"),
+      ["end"] = vim.api.nvim_buf_get_mark(0, ">"),
+    },
+  })
+end, { desc = "Format selection" })
