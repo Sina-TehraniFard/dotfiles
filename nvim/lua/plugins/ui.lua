@@ -1,42 +1,44 @@
 -- ======================================================================
 -- UI関連プラグイン
--- Lualine + Gruvbox + アイコン
+-- Lualine + TokyoNight + アイコン
 -- ======================================================================
 
 return {
   -- ======================================================================
-  -- gruvbox.nvim: カラースキーム
+  -- tokyonight.nvim: カラースキーム
   -- ======================================================================
   {
-    "ellisonleao/gruvbox.nvim",
+    "folke/tokyonight.nvim",
     priority = 1000, -- 最初に読み込む
     lazy = false,
     config = function()
-      require("gruvbox").setup({
+      require("tokyonight").setup({
+        style = "night", -- night, storm, day, moon
+        transparent = false,
         terminal_colors = true,
-        undercurl = true,
-        underline = true,
-        bold = true,
-        italic = {
-          strings = true,
-          emphasis = true,
-          comments = true,
-          operators = false,
-          folds = true,
+        styles = {
+          comments = { italic = true },
+          keywords = { italic = true },
+          functions = {},
+          variables = {},
+          sidebars = "dark",
+          floats = "dark",
         },
-        strikethrough = true,
-        invert_selection = false,
-        invert_signs = false,
-        invert_tabline = false,
-        invert_intend_guides = false,
-        inverse = true,
-        contrast = "", -- "hard", "soft", ""
-        palette_overrides = {},
-        overrides = {},
+        sidebars = { "qf", "help", "neo-tree", "terminal" },
+        day_brightness = 0.3,
+        hide_inactive_statusline = false,
         dim_inactive = false,
-        transparent_mode = false,
+        lualine_bold = true,
+        on_highlights = function(hl, c)
+          -- より黒い背景にカスタマイズ
+          hl.Normal = { fg = c.fg, bg = "#0a0a0f" }
+          hl.NormalFloat = { fg = c.fg, bg = "#0a0a0f" }
+          hl.SignColumn = { bg = "#0a0a0f" }
+          hl.NeoTreeNormal = { fg = c.fg, bg = "#07070a" }
+          hl.NeoTreeNormalNC = { fg = c.fg, bg = "#07070a" }
+        end,
       })
-      vim.cmd.colorscheme("gruvbox")
+      vim.cmd.colorscheme("tokyonight-night")
     end,
   },
 
@@ -128,7 +130,7 @@ return {
     config = function()
       require("lualine").setup({
         options = {
-          theme = "gruvbox",
+          theme = "tokyonight",
           globalstatus = true,
           component_separators = { left = "", right = "" },
           section_separators = { left = "", right = "" },
