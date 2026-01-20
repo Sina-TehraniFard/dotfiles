@@ -36,6 +36,9 @@ return {
           hl.SignColumn = { bg = "#0a0a0f" }
           hl.NeoTreeNormal = { fg = c.fg, bg = "#07070a" }
           hl.NeoTreeNormalNC = { fg = c.fg, bg = "#07070a" }
+          -- コメントを明るくする
+          hl.Comment = { fg = "#7a88a8", italic = true }
+          hl["@comment"] = { link = "Comment" }
         end,
       })
       vim.cmd.colorscheme("tokyonight-night")
