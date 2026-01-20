@@ -118,13 +118,5 @@ keymap("n", "]q", "<cmd>cnext<CR>", { desc = "Next quickfix" })
 -- フォーマット
 -- ======================================================================
 
--- 選択範囲をフォーマット
-keymap("v", "<leader>f", function()
-  vim.lsp.buf.format({
-    async = true,
-    range = {
-      ["start"] = vim.api.nvim_buf_get_mark(0, "<"),
-      ["end"] = vim.api.nvim_buf_get_mark(0, ">"),
-    },
-  })
-end, { desc = "Format selection" })
+-- フォーマットは conform.nvim で設定（plugins/coding.lua）
+-- <leader>f でノーマルモード/ビジュアルモード両方に対応

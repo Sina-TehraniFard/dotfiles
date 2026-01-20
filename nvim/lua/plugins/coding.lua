@@ -102,6 +102,29 @@ return {
   },
 
   -- ======================================================================
+  -- mason-tool-installer: ツール自動インストール
+  -- ======================================================================
+  {
+    "WhoIsSethDaniel/mason-tool-installer.nvim",
+    dependencies = { "williamboman/mason.nvim" },
+    event = "VeryLazy",
+    config = function()
+      require("mason-tool-installer").setup({
+        ensure_installed = {
+          -- フォーマッター
+          "stylua",       -- Lua
+          "black",        -- Python
+          "isort",        -- Python imports
+          "prettier",     -- JS/TS/CSS/HTML/JSON/YAML/Markdown
+          "shfmt",        -- Shell
+        },
+        auto_update = false,
+        run_on_start = true,
+      })
+    end,
+  },
+
+  -- ======================================================================
   -- mason-lspconfig.nvim: MasonとLSPの連携
   -- ======================================================================
   {
@@ -166,10 +189,7 @@ return {
         vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
         vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts)
 
-        -- フォーマット
-        vim.keymap.set("n", "<leader>f", function()
-          vim.lsp.buf.format({ async = true })
-        end, opts)
+        -- フォーマットは conform.nvim で設定
 
         -- ワークスペース
         vim.keymap.set("n", "<leader>wa", vim.lsp.buf.add_workspace_folder, opts)
@@ -379,5 +399,53 @@ return {
       local cmp = require("cmp")
       cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
     end,
+  },
+
+  -- ======================================================================
+  -- conform.nvim: フォーマッター
+  -- ======================================================================
+  {
+    "stevearc/conform.nvim",
+    event = { "BufWritePre" },
+    cmd = { "ConformInfo" },
+    keys = {
+      {
+        "<leader>f",
+        function()
+          require("conform").format({ async = true, lsp_fallback = true })
+        end,
+        mode = { "n", "v" },
+        desc = "Format buffer",
+      },
+    },
+    opts = {
+      formatters_by_ft = {
+        lua = { "stylua" },
+        python = { "isort", "black" },
+        javascript = { "prettier" },
+        typescript = { "prettier" },
+        javascriptreact = { "prettier" },
+        typescriptreact = { "prettier" },
+        css = { "prettier" },
+        html = { "prettier" },
+        json = { "prettier" },
+        yaml = { "prettier" },
+        markdown = { "prettier" },
+        php = { "php_cs_fixer" },
+        go = { "gofmt", "goimports" },
+        rust = { "rustfmt" },
+        sh = { "shfmt" },
+        kotlin = { "ktlint" },
+      },
+      format_on_save = function(bufnr)
+        -- 大きなファイルや特定のファイルタイプでは無効化
+        local disable_filetypes = { c = true, cpp = true }
+        if disable_filetypes[vim.bo[bufnr].filetype] then
+          return
+        end
+        -- 500ms以内に完了しない場合はスキップ
+        return { timeout_ms = 500, lsp_fallback = true }
+      end,
+    },
   },
 }
