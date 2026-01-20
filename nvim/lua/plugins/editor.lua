@@ -402,4 +402,57 @@ return {
       { "[[", function() require("illuminate").goto_prev_reference(true) end, desc = "Previous reference" },
     },
   },
+
+  -- ======================================================================
+  -- auto-save.nvim: 自動保存
+  -- ======================================================================
+  {
+    "okuuva/auto-save.nvim",
+    event = { "InsertLeave", "TextChanged" },
+    opts = {
+      enabled = true,
+      -- 自動保存のトリガーイベント
+      trigger_events = {
+        immediate_save = { "BufLeave", "FocusLost" },
+        defer_save = { "InsertLeave", "TextChanged" },
+        cancel_deferred_save = { "InsertEnter" },
+      },
+      -- 保存までの遅延時間（ミリ秒）
+      debounce_delay = 1000,
+      -- 保存条件
+      condition = function(buf)
+        local fn = vim.fn
+        local utils = require("auto-save.utils.data")
+        -- 変更可能なバッファのみ保存
+        if fn.getbufvar(buf, "&modifiable") ~= 1 then
+          return false
+        end
+        -- 特定のファイルタイプは除外
+        if utils.not_in(fn.getbufvar(buf, "&filetype"), {
+          "neo-tree",
+          "lazy",
+          "mason",
+          "harpoon",
+        }) then
+          return true
+        end
+        return false
+      end,
+      -- 保存時のメッセージを非表示
+      noautocmd = false,
+      -- 保存前後のコールバック
+      callbacks = {
+        before_saving = function()
+          -- 保存前に末尾の空白を削除（オプション）
+          -- vim.cmd([[%s/\s\+$//e]])
+        end,
+        after_saving = function()
+          vim.notify("AutoSaved", vim.log.levels.INFO)
+        end,
+      },
+    },
+    keys = {
+      { "<leader>ta", "<cmd>ASToggle<cr>", desc = "Toggle auto-save" },
+    },
+  },
 }
