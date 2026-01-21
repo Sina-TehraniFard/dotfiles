@@ -27,6 +27,32 @@ vim.api.nvim_set_hl(0, "RenderMarkdownChecked", { fg = "#a6e3a1" })
 vim.api.nvim_set_hl(0, "RenderMarkdownUnchecked", { fg = "#f9e2af" })
 
 -- ======================================================================
+-- 全角スペースのハイライト
+-- ======================================================================
+vim.api.nvim_set_hl(0, "ZenkakuSpace", { bg = "#f38ba8" })
+
+augroup("ZenkakuSpaceHighlight", { clear = true })
+autocmd("ColorScheme", {
+  group = "ZenkakuSpaceHighlight",
+  pattern = "*",
+  callback = function()
+    vim.api.nvim_set_hl(0, "ZenkakuSpace", { bg = "#f38ba8" })
+  end,
+  desc = "Highlight full-width spaces",
+})
+
+autocmd({ "BufWinEnter", "WinEnter" }, {
+  group = "ZenkakuSpaceHighlight",
+  pattern = "*",
+  callback = function()
+    if not vim.w.zenkaku_space_match then
+      vim.w.zenkaku_space_match = vim.fn.matchadd("ZenkakuSpace", "　")
+    end
+  end,
+  desc = "Match full-width spaces in buffer",
+})
+
+-- ======================================================================
 -- 一般的な自動コマンド
 -- ======================================================================
 
