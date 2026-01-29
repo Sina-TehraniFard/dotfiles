@@ -21,6 +21,10 @@ return {
           vim.g.db_ui_show_database_icon = 1
           vim.g.db_ui_force_echo_notifications = 1
 
+          -- 保存時の自動クエリ実行を無効化（auto-saveとの競合を防止）
+          -- クエリを実行したい場合は <leader>S を使用
+          vim.g.db_ui_execute_on_save = false
+
           -- 保存先ディレクトリ（接続情報はここに保存される）
           vim.g.db_ui_save_location = vim.fn.stdpath("data") .. "/db_ui"
 
