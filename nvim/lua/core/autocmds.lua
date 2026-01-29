@@ -119,8 +119,7 @@ autocmd("FileType", {
   pattern = "markdown",
   callback = function()
     vim.opt_local.wrap = true
-    vim.opt_local.spell = true
-    vim.opt_local.spelllang = "en,cjk"
+    vim.opt_local.spell = false  -- スペルチェック無効
     vim.opt_local.conceallevel = 2  -- Obsidian装飾表示用
   end,
   desc = "Markdown specific settings",
