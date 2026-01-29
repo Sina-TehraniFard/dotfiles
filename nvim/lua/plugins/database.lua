@@ -9,6 +9,10 @@ return {
   -- ======================================================================
   {
     "tpope/vim-dadbod",
+    init = function()
+      -- Homebrew mysql-clientのパスを追加
+      vim.env.PATH = "/opt/homebrew/opt/mysql-client/bin:" .. vim.env.PATH
+    end,
     cmd = { "DB", "DBUI", "DBUIToggle", "DBUIAddConnection", "DBUIFindBuffer" },
     dependencies = {
       -- UI拡張
@@ -27,6 +31,14 @@ return {
 
           -- 保存先ディレクトリ（接続情報はここに保存される）
           vim.g.db_ui_save_location = vim.fn.stdpath("data") .. "/db_ui"
+
+          -- DB接続情報は local/database.lua に記載
+          vim.g.dbs = {
+            {
+              name = "example-db",
+              url = "REDACTED"
+            },
+          }
 
           -- クエリ結果の表示設定
           vim.g.db_ui_winwidth = 35
