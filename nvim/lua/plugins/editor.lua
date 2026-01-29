@@ -405,9 +405,11 @@ return {
 
   -- ======================================================================
   -- auto-save.nvim: 自動保存
+  -- NOTE: タイマーハンドルのバグがあるため一時的に無効化
   -- ======================================================================
   {
     "okuuva/auto-save.nvim",
+    enabled = false,
     event = { "InsertLeave", "TextChanged" },
     opts = {
       enabled = true,
@@ -433,6 +435,9 @@ return {
           "lazy",
           "mason",
           "harpoon",
+          "dbui",
+          "dbout",
+          "db",
         }) then
           return true
         end
