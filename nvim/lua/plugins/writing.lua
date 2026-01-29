@@ -97,6 +97,7 @@ return {
       { "<leader>oy", "<cmd>ObsidianYesterday<cr>", desc = "Yesterday's note" },
       { "<leader>ol", "<cmd>ObsidianLink<cr>", desc = "Link selection", mode = "v" },
       { "<leader>of", "<cmd>ObsidianFollowLink<cr>", desc = "Follow link" },
+      { "<CR>", "<cmd>ObsidianToggleCheckbox<cr>", desc = "Toggle checkbox", ft = "markdown" },
     },
     config = function()
       require("obsidian").setup({
@@ -166,31 +167,9 @@ return {
         },
 
         -- UI設定
+        -- NOTE: render-markdown.nvimと競合するためUI機能は無効化
         ui = {
-          enable = true,
-          update_debounce = 200,
-          checkboxes = {
-            [" "] = { char = "󰄱", hl_group = "ObsidianTodo" },
-            ["x"] = { char = "", hl_group = "ObsidianDone" },
-            [">"] = { char = "", hl_group = "ObsidianRightArrow" },
-            ["~"] = { char = "󰰱", hl_group = "ObsidianTilde" },
-          },
-          bullets = { char = "•", hl_group = "ObsidianBullet" },
-          external_link_icon = { char = "", hl_group = "ObsidianExtLinkIcon" },
-          reference_text = { hl_group = "ObsidianRefText" },
-          highlight_text = { hl_group = "ObsidianHighlightText" },
-          tags = { hl_group = "ObsidianTag" },
-          hl_groups = {
-            ObsidianTodo = { bold = true, fg = "#f78c6c" },
-            ObsidianDone = { bold = true, fg = "#89ddff" },
-            ObsidianRightArrow = { bold = true, fg = "#f78c6c" },
-            ObsidianTilde = { bold = true, fg = "#ff5370" },
-            ObsidianBullet = { bold = true, fg = "#89ddff" },
-            ObsidianRefText = { underline = true, fg = "#c792ea" },
-            ObsidianExtLinkIcon = { fg = "#c792ea" },
-            ObsidianTag = { italic = true, fg = "#89ddff" },
-            ObsidianHighlightText = { bg = "#75662e" },
-          },
+          enable = false,
         },
 
         -- 添付ファイルの設定
@@ -218,6 +197,16 @@ return {
     },
     ft = { "markdown" },
     config = function()
+      -- Tokyo Night カラーのカスタムハイライトグループ
+      local hl = vim.api.nvim_set_hl
+      hl(0, "RenderMarkdownUnchecked", { fg = "#ff9e64", bold = true })  -- オレンジ
+      hl(0, "RenderMarkdownChecked", { fg = "#565f89", bold = true })  -- グレー
+      hl(0, "RenderMarkdownCheckedLine", { fg = "#565f89", strikethrough = true, bg = "#1e2030" })  -- 取り消し線 + ハイライト
+      hl(0, "RenderMarkdownInProgress", { fg = "#7dcfff", bold = true })  -- シアン
+      hl(0, "RenderMarkdownScheduled", { fg = "#e0af68", bold = true })  -- イエロー
+      hl(0, "RenderMarkdownCancelled", { fg = "#565f89" })  -- グレー
+      hl(0, "RenderMarkdownCancelledLine", { fg = "#565f89", strikethrough = true, bg = "#24283b" })  -- 取り消し線
+
       require("render-markdown").setup({
         heading = {
           enabled = true,
@@ -231,13 +220,10 @@ return {
           border = "thin",
         },
         bullet = {
-          enabled = true,
-          icons = { "●", "○", "◆", "◇" },
+          enabled = false,  -- checkboxと競合するため無効化
         },
         checkbox = {
-          enabled = true,
-          unchecked = { icon = "󰄱 " },
-          checked = { icon = " " },
+          enabled = false,  -- concealで文字が消えるため無効化、autocmdsでハイライト
         },
         quote = {
           enabled = true,
