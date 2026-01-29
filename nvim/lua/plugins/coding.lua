@@ -22,7 +22,7 @@ return {
         ensure_installed = {
           "bash", "c", "css", "dockerfile", "go", "html", "java",
           "javascript", "json", "kotlin", "lua", "markdown",
-          "markdown_inline", "php", "python", "rust", "sql",
+          "markdown_inline", "php", "python", "rust", "scala", "sql",
           "tsx", "typescript", "vim", "vimdoc", "yaml",
         },
         auto_install = true,
@@ -436,6 +436,7 @@ return {
         rust = { "rustfmt" },
         sh = { "shfmt" },
         kotlin = { "ktlint" },
+        scala = { "scalafmt" },
       },
       format_on_save = function(bufnr)
         -- 大きなファイルや特定のファイルタイプでは無効化
