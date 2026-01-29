@@ -32,7 +32,7 @@ require("lazy").setup({
   -- lazy.nvim の設定
   install = {
     -- 初回インストール時に使用するカラースキーム
-    colorscheme = { "gruvbox", "habamax" },
+    colorscheme = { "tokyonight", "habamax" },
   },
   checker = {
     -- プラグインの更新を自動チェック
