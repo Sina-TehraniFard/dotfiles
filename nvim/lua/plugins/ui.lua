@@ -283,4 +283,63 @@ return {
       vim.notify = require("notify")
     end,
   },
+
+  -- ======================================================================
+  -- neoscroll.nvim: スムーズスクロール
+  -- ======================================================================
+  {
+    "karb94/neoscroll.nvim",
+    event = "VeryLazy",
+    config = function()
+      require("neoscroll").setup({
+        mappings = { "<C-u>", "<C-d>", "<C-b>", "<C-f>", "<C-y>", "<C-e>", "zt", "zz", "zb" },
+        hide_cursor = true,
+        stop_eof = true,
+        respect_scrolloff = false,
+        cursor_scrolls_alone = true,
+        easing = "quadratic",
+        pre_hook = nil,
+        post_hook = nil,
+        performance_mode = false,
+      })
+    end,
+  },
+
+  -- ======================================================================
+  -- mini.animate: アニメーション（カーソル、ウィンドウリサイズ等）
+  -- ======================================================================
+  {
+    "echasnovski/mini.animate",
+    version = false,
+    event = "VeryLazy",
+    config = function()
+      require("mini.animate").setup({
+        cursor = { enable = false }, -- SmoothCursorに任せる
+        scroll = { enable = false }, -- neoscrollに任せる
+        resize = { enable = true },
+        open = { enable = true },
+        close = { enable = true },
+      })
+    end,
+  },
+
+  -- ======================================================================
+  -- smear-cursor.nvim: スライム風カーソルアニメーション
+  -- ======================================================================
+  {
+    "sphamba/smear-cursor.nvim",
+    event = "VeryLazy",
+    opts = {
+      -- スライム風の設定
+      stiffness = 0.8,               -- 硬さ（低いほどぷるぷる）
+      trailing_stiffness = 0.5,      -- 残像の硬さ
+      distance_stop_animating = 0.5, -- アニメ停止距離
+      cursor_color = "#d3cdc3",      -- カーソル色
+      normal_bg = "#282828",         -- 背景色（透過用）
+      smear_between_buffers = true,  -- バッファ間でも動く
+      smear_between_neighbor_lines = true, -- 隣接行間でも動く
+      scroll_buffer_space = true,    -- スクロール時もアニメ
+      legacy_computing_symbols_support = false,
+    },
+  },
 }

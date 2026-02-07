@@ -15,7 +15,7 @@ autocmd("ColorScheme", {
   callback = function()
     -- 完了タスクの取り消し線＋グレー表示
     vim.api.nvim_set_hl(0, "@markup.strikethrough", { strikethrough = true, fg = "#6c7086" })
-    vim.api.nvim_set_hl(0, "RenderMarkdownChecked", { fg = "#a6e3a1" }) -- 緑チェックマーク
+    vim.api.nvim_set_hl(0, "RenderMarkdownChecked", { fg = "#a6e3a1" })   -- 緑チェックマーク
     vim.api.nvim_set_hl(0, "RenderMarkdownUnchecked", { fg = "#f9e2af" }) -- 黄色の未完了
   end,
   desc = "Set checkbox highlight for completed tasks",
@@ -119,8 +119,8 @@ autocmd("FileType", {
   pattern = "markdown",
   callback = function()
     vim.opt_local.wrap = true
-    vim.opt_local.spell = false  -- スペルチェック無効
-    vim.opt_local.conceallevel = 2  -- Obsidian装飾表示用
+    vim.opt_local.spell = false    -- スペルチェック無効
+    vim.opt_local.conceallevel = 2 -- Obsidian装飾表示用
   end,
   desc = "Markdown specific settings",
 })
