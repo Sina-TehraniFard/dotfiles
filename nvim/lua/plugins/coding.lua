@@ -161,10 +161,15 @@ return {
       "williamboman/mason.nvim",
       "williamboman/mason-lspconfig.nvim",
       "hrsh7th/cmp-nvim-lsp",
-      -- TODO: neodev.nvim は非推奨になりました。folke/lazydev.nvim への移行を検討してください。
-      -- lazydev.nvim は LuaLS と連携し、より高速で正確な補完を提供します。
-      -- 参照: https://github.com/folke/lazydev.nvim
-      { "folke/neodev.nvim", opts = {} }, -- Neovim Lua API補完
+      {
+        "folke/lazydev.nvim",
+        ft = "lua",
+        opts = {
+          library = {
+            { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+          },
+        },
+      },
     },
     config = function()
       local lspconfig = require("lspconfig")
@@ -326,6 +331,7 @@ return {
           end, { "i", "s" }),
         }),
         sources = cmp.config.sources({
+          { name = "lazydev", group_index = 0 },
           { name = "nvim_lsp", priority = 1000 },
           { name = "luasnip", priority = 750 },
           { name = "buffer", priority = 500 },
