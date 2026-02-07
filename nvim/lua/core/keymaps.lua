@@ -96,8 +96,7 @@ keymap("n", "Y", "y$", { desc = "Yank to end of line" })
 -- 診断（Diagnostics）
 keymap("n", "[d", vim.diagnostic.goto_prev, { desc = "Previous diagnostic" })
 keymap("n", "]d", vim.diagnostic.goto_next, { desc = "Next diagnostic" })
-keymap("n", "<leader>xd", vim.diagnostic.open_float, { desc = "Show diagnostic" })
-keymap("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Diagnostic list" })
+keymap("n", "<leader>xd", vim.diagnostic.open_float, { desc = "Show diagnostic (float)" })
 
 -- ======================================================================
 -- LSP関連（on_attachで設定するものもあるが、グローバルで使えるものをここに）
@@ -111,7 +110,7 @@ keymap("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Diagnostic list" }
 
 keymap("n", "<leader>co", "<cmd>copen<CR>", { desc = "Open quickfix" })
 keymap("n", "<leader>cc", "<cmd>cclose<CR>", { desc = "Close quickfix" })
-keymap("n", "[q", "<cmd>cprev<CR>", { desc = "Previous quickfix" })
+keymap("n", "[q", "<cmd>cprev<CR>", { desc = Previous quickfix" })
 keymap("n", "]q", "<cmd>cnext<CR>", { desc = "Next quickfix" })
 
 -- ======================================================================

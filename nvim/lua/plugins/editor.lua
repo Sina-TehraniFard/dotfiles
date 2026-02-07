@@ -193,13 +193,12 @@ return {
             ["?"] = "show_help",
             ["<"] = "prev_source",
             [">"] = "next_source",
-            -- パスをクリップボードにコピー（OSC52経由でMacにも対応）
-            -- NOTE: この機能は writing.lua の nvim-osc52 プラグインに依存しています
+            -- パスをクリップボードにコピー
             ["Y"] = {
               function(state)
                 local node = state.tree:get_node()
                 local path = node:get_id()
-                require("osc52").copy(path)
+                vim.fn.setreg("+", path)
                 vim.notify("Copied: " .. path, vim.log.levels.INFO)
               end,
               desc = "Copy path to clipboard",
@@ -287,7 +286,9 @@ return {
         { "<leader>b", group = "Buffer" },
         { "<leader>c", group = "Code/Quickfix" },
         { "<leader>d", group = "Database" },
+        { "<leader>s", group = "Search/Replace" },
         { "<leader>w", group = "Workspace" },
+        { "<leader>x", group = "Diagnostics/Trouble" },
         { "<leader>r", group = "Rename" },
       })
     end,
@@ -404,12 +405,63 @@ return {
   },
 
   -- ======================================================================
+  -- flash.nvim: 画面内ジャンプ
+  -- ======================================================================
+  {
+    "folke/flash.nvim",
+    event = "VeryLazy",
+    opts = {
+      modes = {
+        char = {
+          jump_labels = true,
+        },
+      },
+    },
+    keys = {
+      { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash" },
+      { "S", mode = { "n", "o" }, function() require("flash").treesitter() end, desc = "Flash Treesitter" },
+      { "r", mode = "o", function() require("flash").remote() end, desc = "Remote Flash" },
+      { "R", mode = { "o", "x" }, function() require("flash").treesitter_search() end, desc = "Treesitter Search" },
+    },
+  },
+
+  -- ======================================================================
+  -- trouble.nvim: 診断・TODO一覧
+  -- ======================================================================
+  {
+    "folke/trouble.nvim",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    cmd = "Trouble",
+    keys = {
+      { "<leader>xx", "<cmd>Trouble diagnostics toggle<cr>", desc = "Diagnostics (Trouble)" },
+      { "<leader>xX", "<cmd>Trouble diagnostics toggle filter.buf=0<cr>", desc = "Buffer Diagnostics (Trouble)" },
+      { "<leader>xL", "<cmd>Trouble loclist toggle<cr>", desc = "Location List (Trouble)" },
+      { "<leader>xQ", "<cmd>Trouble qflist toggle<cr>", desc = "Quickfix List (Trouble)" },
+      { "<leader>xt", "<cmd>Trouble todo toggle<cr>", desc = "TODOs (Trouble)" },
+    },
+    opts = {},
+  },
+
+  -- ======================================================================
+  -- grug-far.nvim: プロジェクト全体の検索＆置換
+  -- ======================================================================
+  {
+    "MagicDuck/grug-far.nvim",
+    cmd = "GrugFar",
+    keys = {
+      { "<leader>sr", function() require("grug-far").open() end, desc = "Search and Replace" },
+      { "<leader>sr", function()
+        require("grug-far").open({ prefills = { search = vim.fn.expand("<cword>") } })
+      end, mode = "v", desc = "Search and Replace (selection)" },
+    },
+    opts = {},
+  },
+
+  -- ======================================================================
   -- auto-save.nvim: 自動保存
-  -- NOTE: タイマーハンドルのバグがあるため一時的に無効化
   -- ======================================================================
   {
     "okuuva/auto-save.nvim",
-    enabled = false,
     event = { "InsertLeave", "TextChanged" },
     opts = {
       enabled = true,
