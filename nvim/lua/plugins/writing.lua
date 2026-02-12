@@ -154,10 +154,26 @@ return {
           border = "thin",
         },
         bullet = {
-          enabled = false,  -- checkboxと競合するため無効化
+          enabled = true,
+          icons = { "●", "○", "◆", "◇" },
+          highlight = "RenderMarkdownBullet",
         },
         checkbox = {
-          enabled = false,  -- concealで文字が消えるため無効化、autocmdsでハイライト
+          enabled = true,
+          unchecked = {
+            icon = "󰄱 ",
+            highlight = "RenderMarkdownUnchecked",
+            scope_highlight = nil,
+          },
+          checked = {
+            icon = "󰱒 ",
+            highlight = "RenderMarkdownChecked",
+            scope_highlight = "RenderMarkdownCheckedLine",
+          },
+          custom = {
+            todo = { raw = "[-]", rendered = "󰥔 ", highlight = "RenderMarkdownInProgress", scope_highlight = nil },
+            cancelled = { raw = "[~]", rendered = "󰜺 ", highlight = "RenderMarkdownCancelled", scope_highlight = "RenderMarkdownCancelledLine" },
+          },
         },
         quote = {
           enabled = true,
@@ -170,4 +186,5 @@ return {
       })
     end,
   },
+
 }
