@@ -32,13 +32,11 @@ return {
           -- 保存先ディレクトリ（接続情報はここに保存される）
           vim.g.db_ui_save_location = vim.fn.stdpath("data") .. "/db_ui"
 
-          -- DB接続情報は local/database.lua に記載
-          vim.g.dbs = {
-            {
-              name = "example-db",
-              url = "REDACTED"
-            },
-          }
+          -- DB接続情報はローカルファイルから読み込み（lua/local/database.lua）
+          local ok, local_db = pcall(require, "local.database")
+          if ok and local_db.dbs then
+            vim.g.dbs = local_db.dbs
+          end
 
           -- クエリ結果の表示設定
           vim.g.db_ui_winwidth = 35
