@@ -74,6 +74,13 @@ keymap("v", ">", ">gv", { desc = "Indent right" })
 -- テキスト操作
 -- ======================================================================
 
+-- 全選択
+keymap("n", "<C-a>", "ggVG", { desc = "Select all" })
+
+-- 削除でクリップボードを汚さない（ブラックホールレジスタに送る）
+keymap("n", "dd", '"_dd', { desc = "Delete line without yanking" })
+keymap("n", "x", '"_x', { desc = "Delete char without yanking" })
+
 -- 選択範囲をペーストしてもレジスタを上書きしない
 keymap("v", "p", '"_dP', { desc = "Paste without yanking" })
 
@@ -110,7 +117,7 @@ keymap("n", "<leader>xd", vim.diagnostic.open_float, { desc = "Show diagnostic (
 
 keymap("n", "<leader>co", "<cmd>copen<CR>", { desc = "Open quickfix" })
 keymap("n", "<leader>cc", "<cmd>cclose<CR>", { desc = "Close quickfix" })
-keymap("n", "[q", "<cmd>cprev<CR>", { desc = Previous quickfix" })
+keymap("n", "[q", "<cmd>cprev<CR>", { desc = "Previous quickfix" })
 keymap("n", "]q", "<cmd>cnext<CR>", { desc = "Next quickfix" })
 
 -- ======================================================================
