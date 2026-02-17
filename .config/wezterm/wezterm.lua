@@ -127,7 +127,9 @@ local function parse_cwd(cwd_uri)
   if not cwd_uri then return '', false end
   local uri = tostring(cwd_uri)
   local host = uri:match('^file://([^/]*)')
-  local is_remote = host and host ~= '' and host ~= 'localhost' and host ~= local_hostname
+  local host_lower = host and host:lower() or ''
+  local local_lower = local_hostname:lower()
+  local is_remote = host and host ~= '' and host_lower ~= 'localhost' and host_lower ~= local_lower
   local path = uri:gsub('^file://[^/]*', '')
   path = path:gsub('%%(%x%x)', function(hex_code) return string.char(tonumber(hex_code, 16)) end)
   local home = os.getenv('HOME') or ''
