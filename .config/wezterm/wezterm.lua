@@ -1,40 +1,51 @@
--- WezTerm Configuration - Modern Style
+-- WezTerm Configuration
 local wezterm = require 'wezterm'
-local config = {}
+local action = wezterm.action
+local config = wezterm.config_builder and wezterm.config_builder() or {}
 
-if wezterm.config_builder then
-  config = wezterm.config_builder()
-end
-
--- ============================================================
--- ローカル設定の読み込み（機微情報は local.lua に分離）
--- ============================================================
-local ok, local_config = pcall(require, 'local')
-if not ok then local_config = {} end
+-- ローカル設定（SSH・起動コマンド等の環境固有情報は local.lua に分離）
+local local_config_loaded, local_config = pcall(require, 'local')
+if not local_config_loaded then local_config = {} end
 
 -- ============================================================
--- 描画設定
+-- カラーパレット - Tokyo Night
 -- ============================================================
-config.front_end = "WebGpu"
+local palette = {
+  scheme_name  = 'Tokyo Night',
+  bg           = '#1a1b26',
+  bg_dark      = '#16161e',
+  bg_highlight = '#24283b',
+  bg_hover     = '#3b4261',
+  blue         = '#7aa2f7',
+  purple       = '#bb9af7',
+  purple_dim   = '#2e2546',
+  fg           = '#c0caf5',
+  comment      = '#565f89',
+}
 
 -- ============================================================
--- カラースキーム - Tokyo Night
+-- カラースキーム（ターミナル全体の配色）
 -- ============================================================
-config.color_scheme = 'Tokyo Night'
+config.color_scheme = palette.scheme_name
 
 -- ============================================================
--- フォント設定 - Monaspace Neon (GitHub製, Nerd Font版)
+-- フォント
 -- ============================================================
-config.font = wezterm.font('MonaspiceNe Nerd Font', { weight = 'Light' })
-config.font_size = 12.0
+local font = {
+  main       = 'MonaspiceNe Nerd Font',
+  italic     = 'MonaspiceRn Nerd Font',
+  fallback   = 'Hiragino Sans',
+  weight     = 'Light',
+  tab_weight = 'Medium',
+  size       = 12.0,
+  tab_size   = 11.0,
+}
 
--- 行間を狭く（デフォルトは1.0）
+config.front_end = 'WebGpu'
+config.font = wezterm.font(font.main, { weight = font.weight })
+config.font_size = font.size
 config.line_height = 0.9
-
--- 文字間を狭く
 config.cell_width = 0.9
-
--- リガチャ（合字）を有効化: => -> != など
 config.harfbuzz_features = { 'calt=1', 'clig=1', 'liga=1' }
 
 config.font_rules = {
@@ -42,312 +53,221 @@ config.font_rules = {
     intensity = 'Normal',
     italic = false,
     font = wezterm.font_with_fallback({
-      { family = 'MonaspiceNe Nerd Font', weight = 'Light' },
-      'Hiragino Sans',
+      { family = font.main, weight = font.weight },
+      font.fallback,
     }),
   },
-  -- イタリックは筆記体風の Radon スタイルを使用
   {
     intensity = 'Normal',
     italic = true,
-    font = wezterm.font('MonaspiceRn Nerd Font', { weight = 'Light', italic = true }),
+    font = wezterm.font(font.italic, { weight = font.weight, italic = true }),
   },
 }
 
 -- ============================================================
--- ウィンドウスタイル - モダン
+-- ウィンドウ外観
 -- ============================================================
--- 透明度なし
+local window_pad = 16
+
 config.window_background_opacity = 1.0
 config.macos_window_background_blur = 0
-
--- ウィンドウ装飾
-config.window_decorations = "RESIZE|MACOS_FORCE_ENABLE_SHADOW"
-
--- パディング（余白を広めに）
-config.window_padding = {
-  left = 16,
-  right = 16,
-  top = 16,
-  bottom = 16,
-}
-
--- ウィンドウサイズ
+config.window_decorations = 'RESIZE|MACOS_FORCE_ENABLE_SHADOW'
+config.window_padding = { left = window_pad, right = window_pad, top = window_pad, bottom = window_pad }
 config.initial_rows = 45
 config.initial_cols = 160
 
 -- ============================================================
--- タブバー - ファンシースタイル
+-- タブバー
 -- ============================================================
 config.enable_tab_bar = true
 config.hide_tab_bar_if_only_one_tab = false
 config.tab_bar_at_bottom = false
 config.use_fancy_tab_bar = true
 
--- タブタイトルを番号+ディレクトリに（SSH時は色を変える）
-local local_hostname = wezterm.hostname()
-wezterm.on('format-tab-title', function(tab, tabs, panes, config, hover, max_width)
-  local cwd_uri = tab.active_pane.current_working_dir
-  local is_remote = false
-  local dirname = ''
-
-  if cwd_uri then
-    local uri = tostring(cwd_uri)
-    -- ホスト名を取得してリモートか判定
-    local host = uri:match('^file://([^/]*)')
-    if host and host ~= '' and host ~= 'localhost' and host ~= local_hostname then
-      is_remote = true
-    end
-    local path = uri:gsub('^file://[^/]*', '')
-    -- URLデコード（%20 → スペース等）
-    path = path:gsub('%%(%x%x)', function(h) return string.char(tonumber(h, 16)) end)
-    -- ホームディレクトリを ~ に置換
-    local home = os.getenv('HOME') or ''
-    if not is_remote and home ~= '' and path:sub(1, #home) == home then
-      path = '~' .. path:sub(#home + 1)
-    end
-    -- 末尾のスラッシュを除去
-    path = path:gsub('/$', '')
-    -- 最後のディレクトリ名だけ取得
-    dirname = path:match('[^/]+$') or path
-  end
-
-  local title = string.format(' %d: %s ', tab.tab_index + 1, dirname)
-
-  if is_remote then
-    if tab.is_active then
-      return {
-        { Background = { Color = '#bb9af7' } },
-        { Foreground = { Color = '#1a1b26' } },
-        { Text = title },
-      }
-    else
-      return {
-        { Background = { Color = '#2e2546' } },
-        { Foreground = { Color = '#bb9af7' } },
-        { Text = title },
-      }
-    end
-  end
-
-  return title
-end)
-
--- タブバーの色をカスタマイズ（Tokyo Nightに合わせる）
 config.window_frame = {
-  font = wezterm.font({ family = 'MonaspiceNe Nerd Font', weight = 'Medium' }),
-  font_size = 11.0,
-  active_titlebar_bg = '#1a1b26',
-  inactive_titlebar_bg = '#16161e',
+  font = wezterm.font({ family = font.main, weight = font.tab_weight }),
+  font_size = font.tab_size,
+  active_titlebar_bg = palette.bg,
+  inactive_titlebar_bg = palette.bg_dark,
 }
 
 config.colors = {
   tab_bar = {
-    background = '#1a1b26',
+    background = palette.bg,
     active_tab = {
-      bg_color = '#7aa2f7',
-      fg_color = '#1a1b26',
+      bg_color = palette.blue,
+      fg_color = palette.bg,
       intensity = 'Bold',
     },
     inactive_tab = {
-      bg_color = '#24283b',
-      fg_color = '#565f89',
+      bg_color = palette.bg_highlight,
+      fg_color = palette.comment,
     },
     inactive_tab_hover = {
-      bg_color = '#3b4261',
-      fg_color = '#c0caf5',
+      bg_color = palette.bg_hover,
+      fg_color = palette.fg,
     },
     new_tab = {
-      bg_color = '#1a1b26',
-      fg_color = '#7aa2f7',
+      bg_color = palette.bg,
+      fg_color = palette.blue,
     },
     new_tab_hover = {
-      bg_color = '#7aa2f7',
-      fg_color = '#1a1b26',
+      bg_color = palette.blue,
+      fg_color = palette.bg,
     },
   },
 }
 
+-- タブタイトル: 番号 + ディレクトリ名（SSH時は紫で区別）
+
+local local_hostname = wezterm.hostname()
+
+--- cwd_uri からディレクトリ名とリモート判定を返す
+local function parse_cwd(cwd_uri)
+  if not cwd_uri then return '', false end
+  local uri = tostring(cwd_uri)
+  local host = uri:match('^file://([^/]*)')
+  local is_remote = host and host ~= '' and host ~= 'localhost' and host ~= local_hostname
+  local path = uri:gsub('^file://[^/]*', '')
+  path = path:gsub('%%(%x%x)', function(hex_code) return string.char(tonumber(hex_code, 16)) end)
+  local home = os.getenv('HOME') or ''
+  if not is_remote and home ~= '' and path:sub(1, #home) == home then
+    path = '~' .. path:sub(#home + 1)
+  end
+  path = path:gsub('/$', '')
+  local dirname = path:match('[^/]+$') or path
+  return dirname, is_remote
+end
+
+--- リモートタブ用の色付きスタイルを返す
+local function remote_tab_style(is_active, title)
+  local bg = is_active and palette.purple     or palette.purple_dim
+  local fg = is_active and palette.bg         or palette.purple
+  return {
+    { Background = { Color = bg } },
+    { Foreground = { Color = fg } },
+    { Text = title },
+  }
+end
+
+wezterm.on('format-tab-title', function(tab)
+  local dirname, is_remote = parse_cwd(tab.active_pane.current_working_dir)
+  local title = string.format(' %d: %s ', tab.tab_index + 1, dirname)
+  if is_remote then
+    return remote_tab_style(tab.is_active, title)
+  end
+  return title
+end)
+
 -- ============================================================
--- SSH接続設定（local.lua から読み込み）
+-- SSH接続（local.lua から読み込み）
 -- ============================================================
 config.ssh_domains = local_config.ssh_domains or {}
 
 -- ============================================================
 -- キーバインド
 -- ============================================================
+local pane_resize_step = 5
+local default_shell = '/bin/zsh'
+local tab_activate_count = 5
+
 config.keys = {
-  -- ペイン操作
-  {
-    key = 'd',
-    mods = 'CMD',
-    action = wezterm.action.SplitHorizontal { domain = 'CurrentPaneDomain' },
-  },
-  {
-    key = 'd',
-    mods = 'CMD|SHIFT',
-    action = wezterm.action.SplitVertical { domain = 'CurrentPaneDomain' },
-  },
-  {
-    key = 'w',
-    mods = 'CMD',
-    action = wezterm.action.CloseCurrentPane { confirm = true },
-  },
+  -- ペイン: 分割・閉じる
+  { key = 'd', mods = 'CMD',       action = action.SplitHorizontal { domain = 'CurrentPaneDomain' } },
+  { key = 'd', mods = 'CMD|SHIFT', action = action.SplitVertical { domain = 'CurrentPaneDomain' } },
+  { key = 'w', mods = 'CMD',       action = action.CloseCurrentPane { confirm = false } },
 
-  -- ペイン間移動
-  {
-    key = 'h',
-    mods = 'CMD|SHIFT',
-    action = wezterm.action.ActivatePaneDirection 'Left',
-  },
-  {
-    key = 'l',
-    mods = 'CMD|SHIFT',
-    action = wezterm.action.ActivatePaneDirection 'Right',
-  },
-  {
-    key = 'k',
-    mods = 'CMD|SHIFT',
-    action = wezterm.action.ActivatePaneDirection 'Up',
-  },
-  {
-    key = 'j',
-    mods = 'CMD|SHIFT',
-    action = wezterm.action.ActivatePaneDirection 'Down',
-  },
+  -- ペイン: フォーカス移動
+  { key = 'h', mods = 'CMD|SHIFT', action = action.ActivatePaneDirection 'Left' },
+  { key = 'l', mods = 'CMD|SHIFT', action = action.ActivatePaneDirection 'Right' },
+  { key = 'k', mods = 'CMD|SHIFT', action = action.ActivatePaneDirection 'Up' },
+  { key = 'j', mods = 'CMD|SHIFT', action = action.ActivatePaneDirection 'Down' },
 
-  -- タブ操作
-  {
-    key = 't',
-    mods = 'CMD',
-    action = wezterm.action.SpawnTab 'CurrentPaneDomain',
-  },
-  { key = '1', mods = 'CMD', action = wezterm.action.ActivateTab(0) },
-  { key = '2', mods = 'CMD', action = wezterm.action.ActivateTab(1) },
-  { key = '3', mods = 'CMD', action = wezterm.action.ActivateTab(2) },
-  { key = '4', mods = 'CMD', action = wezterm.action.ActivateTab(3) },
-  { key = '5', mods = 'CMD', action = wezterm.action.ActivateTab(4) },
+  -- ペイン: サイズ調整
+  { key = 'LeftArrow',  mods = 'CMD|OPT', action = action.AdjustPaneSize { 'Left',  pane_resize_step } },
+  { key = 'RightArrow', mods = 'CMD|OPT', action = action.AdjustPaneSize { 'Right', pane_resize_step } },
+  { key = 'UpArrow',    mods = 'CMD|OPT', action = action.AdjustPaneSize { 'Up',    pane_resize_step } },
+  { key = 'DownArrow',  mods = 'CMD|OPT', action = action.AdjustPaneSize { 'Down',  pane_resize_step } },
 
-  -- Ctrl + 矢印でタブ切り替え
-  {
-    key = 'LeftArrow',
-    mods = 'CTRL',
-    action = wezterm.action.ActivateTabRelative(-1),
-  },
-  {
-    key = 'RightArrow',
-    mods = 'CTRL',
-    action = wezterm.action.ActivateTabRelative(1),
-  },
+  -- タブ: 新規作成
+  { key = 't', mods = 'CMD', action = action.SpawnTab 'CurrentPaneDomain' },
 
-  -- Shift + Option + 矢印でタブ間を切り替え
-  {
-    key = 'LeftArrow',
-    mods = 'SHIFT|OPT',
-    action = wezterm.action.ActivateTabRelative(-1),
-  },
-  {
-    key = 'RightArrow',
-    mods = 'SHIFT|OPT',
-    action = wezterm.action.ActivateTabRelative(1),
-  },
+  -- タブ: 切り替え（2系統のショートカットを提供）
+  { key = 'LeftArrow',  mods = 'CTRL',      action = action.ActivateTabRelative(-1) },
+  { key = 'RightArrow', mods = 'CTRL',      action = action.ActivateTabRelative(1) },
+  { key = 'LeftArrow',  mods = 'SHIFT|OPT', action = action.ActivateTabRelative(-1) },
+  { key = 'RightArrow', mods = 'SHIFT|OPT', action = action.ActivateTabRelative(1) },
 
-  -- 新タブ（sinaなし）
-  {
-    key = 'F12',
-    action = wezterm.action.SpawnCommandInNewTab {
-      args = { '/bin/zsh', '-l' },
-    },
-  },
+  -- タブ: 並び替え
+  { key = 'LeftArrow',  mods = 'CMD|SHIFT', action = action.MoveTabRelative(-1) },
+  { key = 'RightArrow', mods = 'CMD|SHIFT', action = action.MoveTabRelative(1) },
 
-  -- ペインサイズ調整
-  {
-    key = 'LeftArrow',
-    mods = 'CMD|OPT',
-    action = wezterm.action.AdjustPaneSize { 'Left', 5 },
-  },
-  {
-    key = 'RightArrow',
-    mods = 'CMD|OPT',
-    action = wezterm.action.AdjustPaneSize { 'Right', 5 },
-  },
-  {
-    key = 'UpArrow',
-    mods = 'CMD|OPT',
-    action = wezterm.action.AdjustPaneSize { 'Up', 5 },
-  },
-  {
-    key = 'DownArrow',
-    mods = 'CMD|OPT',
-    action = wezterm.action.AdjustPaneSize { 'Down', 5 },
-  },
+  -- タブ: 起動コマンドなしで新規作成
+  { key = 'F12', action = action.SpawnCommandInNewTab { args = { default_shell, '-l' } } },
 
   -- フォントサイズ
-  {
-    key = '+',
-    mods = 'CMD|SHIFT',
-    action = wezterm.action.IncreaseFontSize,
-  },
-  {
-    key = '-',
-    mods = 'CMD',
-    action = wezterm.action.DecreaseFontSize,
-  },
-  {
-    key = '0',
-    mods = 'CMD',
-    action = wezterm.action.ResetFontSize,
-  },
+  { key = '+', mods = 'CMD|SHIFT', action = action.IncreaseFontSize },
+  { key = '-', mods = 'CMD',       action = action.DecreaseFontSize },
+  { key = '0', mods = 'CMD',       action = action.ResetFontSize },
 }
 
--- ============================================================
--- 起動時コマンド
--- ============================================================
--- -l オプションでログインシェルとして起動（/etc/pathsを読み込むため）
-config.default_prog = { '/bin/zsh', '-lic', 'sina; exec /bin/zsh -l' }
-
--- ============================================================
--- ペイン設定 - 非アクティブペインのコントラスト
--- ============================================================
--- 非アクティブペイン（操作していない側）を暗くして区別しやすくする
-config.inactive_pane_hsb = {
-  hue = 1.0,         -- 色相はそのまま
-  saturation = 0.5,  -- 彩度を半分に（色がかなり薄くなる）
-  brightness = 0.3,  -- 明度を大幅に下げる（かなり暗い）
-}
+-- タブ: CMD + 数字キーで番号指定（1〜tab_activate_count）
+for i = 1, tab_activate_count do
+  table.insert(config.keys,
+    { key = tostring(i), mods = 'CMD', action = action.ActivateTab(i - 1) }
+  )
+end
 
 -- ============================================================
 -- マウス操作
 -- ============================================================
 config.mouse_bindings = {
-  -- 選択完了時（左クリック離したとき）にクリップボードにコピー
   {
     event = { Up = { streak = 1, button = 'Left' } },
     mods = 'NONE',
-    action = wezterm.action.CompleteSelection 'ClipboardAndPrimarySelection',
+    action = action.CompleteSelection 'ClipboardAndPrimarySelection',
   },
-  -- 右クリックでペースト
   {
     event = { Down = { streak = 1, button = 'Right' } },
     mods = 'NONE',
-    action = wezterm.action.PasteFrom 'Clipboard',
+    action = action.PasteFrom 'Clipboard',
   },
 }
 
 -- ============================================================
--- その他
+-- ペインの視認性
 -- ============================================================
-config.scrollback_lines = 10000
-config.audible_bell = "Disabled"
+config.inactive_pane_hsb = {
+  hue = 1.0,
+  saturation = 0.5,
+  brightness = 0.3,
+}
+
+-- ============================================================
+-- 起動コマンド（環境固有の起動シーケンスは local.lua で上書き可能）
+-- ============================================================
+config.default_prog = local_config.default_prog or { default_shell, '-l' }
+
+-- ============================================================
+-- カーソル
+-- ============================================================
 config.default_cursor_style = 'BlinkingBar'
 config.cursor_blink_rate = 500
-config.check_for_updates = false
-config.window_close_confirmation = 'NeverPrompt'
-
--- アニメーション・描画設定
-config.max_fps = 120           -- 描画の最大フレームレート
-config.animation_fps = 60
 config.cursor_blink_ease_in = 'EaseIn'
 config.cursor_blink_ease_out = 'EaseOut'
+
+-- ============================================================
+-- 描画パフォーマンス
+-- ============================================================
+config.max_fps = 120
+config.animation_fps = 60
+
+-- ============================================================
+-- 動作設定
+-- ============================================================
+config.scrollback_lines = 10000
+config.audible_bell = 'Disabled'
+config.check_for_updates = false
+config.window_close_confirmation = 'NeverPrompt'
 
 return config

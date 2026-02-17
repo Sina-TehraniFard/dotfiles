@@ -15,21 +15,6 @@ keymap("i", "jk", "<Esc>", opts)
 -- 検索ハイライトを消す
 keymap("n", "<Esc>", "<cmd>nohlsearch<CR>", opts)
 
--- 保存
-keymap("n", "<C-s>", "<cmd>w<CR>", { desc = "Save file" })
-keymap("i", "<C-s>", "<Esc><cmd>w<CR>", { desc = "Save file" })
-
--- ======================================================================
--- クリップボード操作（Ctrl+C/V）
--- ======================================================================
-
--- ビジュアルモードでCtrl+Cでコピー
-keymap("v", "<C-c>", '"+y', { desc = "Copy to clipboard" })
-
--- Ctrl+Vでペースト
-keymap("n", "<C-v>", '"+p', { desc = "Paste from clipboard" })
-keymap("i", "<C-v>", '<C-r>+', { desc = "Paste from clipboard in insert mode" })
-keymap("v", "<C-v>", '"+p', { desc = "Paste from clipboard" })
 
 -- ======================================================================
 -- ウィンドウ操作

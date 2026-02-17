@@ -2,7 +2,7 @@
 # ============================================================
 #  Neovim/Vim Environment Bootstrap Script
 #  Author: Sina Tehrani Fard
-#  Purpose: Automated setup of Neovim + LSPs
+#  Purpose: Automated setup of Neovim + WezTerm + LSPs
 # ============================================================
 
 set -euo pipefail
@@ -59,8 +59,8 @@ EXAMPLES:
 
 このスクリプトは以下の処理を行います：
   1. 依存ツールのインストール（Neovim, fd, ripgrep, lazygit, node）
-  2. 既存のNeovim設定をバックアップ
-  3. 新しいNeovim設定を ~/.config/nvim にコピー
+  2. 既存の設定をバックアップ
+  3. Neovim/WezTerm設定をシンボリックリンクで配置
   4. Obsidian Vaultの作成
   5. Neovimプラグインのインストール
 HELP
@@ -202,27 +202,42 @@ check_nodejs() {
 }
 
 # ============================================================
-# 4. Neovim 設定のインストール
+# 4. 設定ファイルのシンボリックリンク作成
 # ============================================================
 
-install_neovim_config() {
-  print_status "Installing Neovim configuration..."
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}"
 
-  NVIM_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/nvim"
-  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# 指定ディレクトリへのシンボリックリンクを作成（既存があればバックアップ）
+create_symlink() {
+  local source="$1"
+  local target="$2"
 
-  # 既存の設定をバックアップ
-  if [ -d "$NVIM_CONFIG_DIR" ]; then
-    BACKUP_DIR="${NVIM_CONFIG_DIR}.backup.$(date +%Y%m%d%H%M%S)"
-    print_warning "Existing Neovim config found. Backing up to $BACKUP_DIR"
-    mv "$NVIM_CONFIG_DIR" "$BACKUP_DIR"
+  if [ -L "$target" ]; then
+    rm "$target"
+    print_status "Removed existing symlink: $target"
+  elif [ -d "$target" ] || [ -f "$target" ]; then
+    local backup="${target}.backup.$(date +%Y%m%d%H%M%S)"
+    print_warning "Backing up existing config: $target → $backup"
+    mv "$target" "$backup"
   fi
 
-  # 設定ファイルをコピー
-  mkdir -p "$NVIM_CONFIG_DIR"
-  cp -r "$SCRIPT_DIR/nvim/"* "$NVIM_CONFIG_DIR/"
+  ln -sf "$source" "$target"
+  print_status "Linked: $target → $source"
+}
 
-  print_status "Neovim config installed to $NVIM_CONFIG_DIR"
+install_configs() {
+  print_status "Installing configuration symlinks..."
+
+  mkdir -p "$CONFIG_DIR"
+
+  # Neovim
+  create_symlink "$SCRIPT_DIR/.config/nvim" "$CONFIG_DIR/nvim"
+
+  # WezTerm
+  create_symlink "$SCRIPT_DIR/.config/wezterm" "$CONFIG_DIR/wezterm"
+
+  print_status "Configuration symlinks created"
 }
 
 # ============================================================
@@ -283,12 +298,12 @@ confirm_installation() {
   echo "このスクリプトは以下の処理を行います："
   echo ""
   echo "  1. 依存ツールのインストール（Neovim, fd, ripgrep, lazygit, node）"
-  echo "  2. 既存のNeovim設定をバックアップ"
-  echo "  3. 新しいNeovim設定を ~/.config/nvim にコピー"
+  echo "  2. 既存の設定をバックアップ"
+  echo "  3. Neovim/WezTerm設定をシンボリックリンクで配置"
   echo "  4. Obsidian Vaultの作成（\${OBSIDIAN_VAULT:-~/Documents/ObsidianVault}）"
   echo "  5. Neovimプラグインのインストール"
   echo ""
-  echo "注意: 既存のNeovim設定がある場合、自動的にバックアップされます。"
+  echo "注意: 既存の設定がある場合、自動的にバックアップされます。"
   echo ""
 
   # -y オプションで確認をスキップ
@@ -330,8 +345,8 @@ main() {
   # Node.jsの確認
   check_nodejs
 
-  # Neovim設定のインストール
-  install_neovim_config
+  # 設定ファイルのシンボリックリンク作成
+  install_configs
 
   # Obsidian Vaultのセットアップ
   setup_obsidian_vault
