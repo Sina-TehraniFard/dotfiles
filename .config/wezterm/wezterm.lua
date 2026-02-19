@@ -204,8 +204,9 @@ config.keys = {
   { key = 'LeftArrow',  mods = 'CMD|SHIFT', action = action.MoveTabRelative(-1) },
   { key = 'RightArrow', mods = 'CMD|SHIFT', action = action.MoveTabRelative(1) },
 
-  -- タブ: 起動コマンドなしで新規作成
+  -- 起動コマンドなしで新規タブ / 分割
   { key = 'F12', action = action.SpawnCommandInNewTab { args = { default_shell, '-l' } } },
+  { key = 'F12', mods = 'SHIFT', action = action.SplitHorizontal { args = { default_shell, '-l' } } },
 
   -- フォントサイズ
   { key = '+', mods = 'CMD|SHIFT', action = action.IncreaseFontSize },
