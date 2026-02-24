@@ -19,6 +19,8 @@ local palette = {
   blue         = '#7aa2f7',
   purple       = '#bb9af7',
   purple_dim   = '#2e2546',
+  red          = '#f7768e',
+  red_dim      = '#3d1f27',
   fg           = '#c0caf5',
   comment      = '#565f89',
 }
@@ -118,13 +120,36 @@ config.colors = {
   },
 }
 
--- タブタイトル: 番号 + ディレクトリ名（SSH時は紫で区別）
+-- ============================================================
+-- タブタイトル・SSH環境カラー
+-- ============================================================
 
 local local_hostname = wezterm.hostname()
 
---- cwd_uri からディレクトリ名とリモート判定を返す
-local function parse_cwd(cwd_uri)
-  if not cwd_uri then return '', false end
+-- local.lua の ssh_envs からラベル→色マップを構築
+local ssh_env_styles = {}
+for _, env in ipairs(local_config.ssh_envs or {}) do
+  ssh_env_styles[env.label] = palette[env.color]
+end
+
+-- ペインID → 現在のSSH環境ラベル（_ssh_with_env が通知）
+local pane_env = {}
+
+wezterm.on('user-var-changed', function(_, pane, name, value)
+  if name ~= 'WEZTERM_ENV' then return end
+  if value == '' then
+    pane_env[pane:pane_id()] = nil
+  else
+    pane_env[pane:pane_id()] = value
+  end
+  -- タブの再描画を促す
+  local win = pane:window()
+  if win then win:set_config_overrides({}) end
+end)
+
+--- cwd_uri からディレクトリ名を返す
+local function parse_dirname(cwd_uri)
+  if not cwd_uri then return '' end
   local uri = tostring(cwd_uri)
   local host = uri:match('^file://([^/]*)')
   local host_lower = host and host:lower() or ''
@@ -137,14 +162,13 @@ local function parse_cwd(cwd_uri)
     path = '~' .. path:sub(#home + 1)
   end
   path = path:gsub('/$', '')
-  local dirname = path:match('[^/]+$') or path
-  return dirname, is_remote
+  return path:match('[^/]+$') or path
 end
 
---- リモートタブ用の色付きスタイルを返す
-local function remote_tab_style(is_active, title)
-  local bg = is_active and palette.purple     or palette.purple_dim
-  local fg = is_active and palette.bg         or palette.purple
+--- タブ用の色付きスタイルを返す
+local function colored_tab_style(is_active, title, color, dim_color)
+  local bg = is_active and color or dim_color
+  local fg = is_active and palette.bg or color
   return {
     { Background = { Color = bg } },
     { Foreground = { Color = fg } },
@@ -153,12 +177,20 @@ local function remote_tab_style(is_active, title)
 end
 
 wezterm.on('format-tab-title', function(tab)
-  local dirname, is_remote = parse_cwd(tab.active_pane.current_working_dir)
-  local title = string.format(' %d: %s ', tab.tab_index + 1, dirname)
-  if is_remote then
-    return remote_tab_style(tab.is_active, title)
+  local env_label = pane_env[tab.active_pane.pane_id]
+  local n = tab.tab_index + 1
+
+  -- SSH環境中: ラベル名をタイトルに使い、対応色で描画
+  if env_label then
+    local color     = ssh_env_styles[env_label] or palette.red
+    local dim_color = palette[env_label .. '_dim'] or '#3d1f27'
+    local title = string.format(' %d: %s ', n, env_label)
+    return colored_tab_style(tab.is_active, title, color, dim_color)
   end
-  return title
+
+  -- 通常: ディレクトリ名
+  local dirname = parse_dirname(tab.active_pane.current_working_dir)
+  return string.format(' %d: %s ', n, dirname)
 end)
 
 -- ============================================================
