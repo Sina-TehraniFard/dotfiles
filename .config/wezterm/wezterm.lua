@@ -147,9 +147,9 @@ wezterm.on('user-var-changed', function(_, pane, name, value)
   if win then win:set_config_overrides({}) end
 end)
 
---- cwd_uri からディレクトリ名を返す
-local function parse_dirname(cwd_uri)
-  if not cwd_uri then return '' end
+--- cwd_uri からディレクトリ名とリモート判定を返す
+local function parse_cwd(cwd_uri)
+  if not cwd_uri then return '', false end
   local uri = tostring(cwd_uri)
   local host = uri:match('^file://([^/]*)')
   local host_lower = host and host:lower() or ''
@@ -162,7 +162,7 @@ local function parse_dirname(cwd_uri)
     path = '~' .. path:sub(#home + 1)
   end
   path = path:gsub('/$', '')
-  return path:match('[^/]+$') or path
+  return path:match('[^/]+$') or path, is_remote
 end
 
 --- タブ用の色付きスタイルを返す
@@ -180,7 +180,7 @@ wezterm.on('format-tab-title', function(tab)
   local env_label = pane_env[tab.active_pane.pane_id]
   local n = tab.tab_index + 1
 
-  -- SSH環境中: ラベル名をタイトルに使い、対応色で描画
+  -- SSH環境中（_ssh_with_envで通知）: ラベル名をタイトルに使い、対応色で描画
   if env_label then
     local color     = ssh_env_styles[env_label] or palette.red
     local dim_color = palette[env_label .. '_dim'] or '#3d1f27'
@@ -188,9 +188,13 @@ wezterm.on('format-tab-title', function(tab)
     return colored_tab_style(tab.is_active, title, color, dim_color)
   end
 
-  -- 通常: ディレクトリ名
-  local dirname = parse_dirname(tab.active_pane.current_working_dir)
-  return string.format(' %d: %s ', n, dirname)
+  -- CWD URIのホスト名でリモート判定（_ssh_with_envがない接続のフォールバック）
+  local dirname, is_remote = parse_cwd(tab.active_pane.current_working_dir)
+  local title = string.format(' %d: %s ', n, dirname)
+  if is_remote then
+    return colored_tab_style(tab.is_active, title, palette.purple, palette.purple_dim)
+  end
+  return title
 end)
 
 -- ============================================================
