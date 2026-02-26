@@ -39,6 +39,21 @@ opt.undofile = true        -- Undoファイルを有効化
 
 -- 動作
 opt.mouse = "a"            -- マウス操作を有効化
+
+-- クリップボード: SSH環境ではDISPLAYがないためOSC52でWezTermと連携
+if vim.env.DISPLAY == nil and vim.env.WAYLAND_DISPLAY == nil then
+  vim.g.clipboard = {
+    name = "OSC 52",
+    copy = {
+      ["+"] = require("vim.ui.clipboard.osc52").copy("+"),
+      ["*"] = require("vim.ui.clipboard.osc52").copy("*"),
+    },
+    paste = {
+      ["+"] = require("vim.ui.clipboard.osc52").paste("+"),
+      ["*"] = require("vim.ui.clipboard.osc52").paste("*"),
+    },
+  }
+end
 opt.clipboard = "unnamedplus"  -- システムクリップボードと連携
 
 opt.updatetime = 100       -- 更新間隔（ミリ秒）

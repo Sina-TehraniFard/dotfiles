@@ -38,9 +38,39 @@ return {
             vim.g.dbs = local_db.dbs
           end
 
-          -- クエリ結果の表示設定
-          vim.g.db_ui_winwidth = 35
+          -- レイアウト設定
+          vim.g.db_ui_winwidth = 40
           vim.g.db_ui_win_position = "left"
+          vim.g.db_ui_show_help = 0 -- ヘルプテキストを非表示にしてスッキリ
+
+          -- クエリ結果を下部に水平分割で表示（バッファタブを汚さない）
+          vim.g.db_ui_use_nvim_notify = 1
+          vim.g.db_ui_auto_execute_table_helpers = 1
+
+          -- DBUIカスタムハイライト
+          vim.api.nvim_create_autocmd("FileType", {
+            pattern = { "dbui" },
+            callback = function()
+              -- サイドバーの見た目をneo-treeに寄せる
+              vim.opt_local.number = false
+              vim.opt_local.relativenumber = false
+              vim.opt_local.signcolumn = "no"
+              vim.opt_local.statuscolumn = ""
+              vim.opt_local.cursorline = true
+            end,
+          })
+
+          -- クエリ結果（dbout）の見た目改善
+          vim.api.nvim_create_autocmd("FileType", {
+            pattern = { "dbout" },
+            callback = function()
+              vim.opt_local.number = false
+              vim.opt_local.relativenumber = false
+              vim.opt_local.signcolumn = "no"
+              vim.opt_local.foldenable = false
+              vim.opt_local.wrap = false
+            end,
+          })
 
           -- テーブル表示時のデフォルトクエリ
           vim.g.db_ui_table_helpers = {
@@ -73,6 +103,17 @@ return {
       { "<leader>da", "<cmd>DBUIAddConnection<cr>", desc = "Add DB connection" },
       { "<leader>dr", "<cmd>DBUIRenameBuffer<cr>", desc = "Rename DB buffer" },
       { "<leader>dl", "<cmd>DBUILastQueryInfo<cr>", desc = "Last query info" },
+      -- SQLバッファ内でのクエリ実行（ビジュアル選択 or バッファ全体）
+      { "<leader>de", "<Plug>(DBUI_ExecuteQuery)", mode = { "n", "v" }, desc = "Execute query", ft = { "sql", "mysql", "plsql" } },
+      -- クエリ結果ウィンドウを閉じる
+      { "<leader>dq", function()
+        for _, win in ipairs(vim.api.nvim_list_wins()) do
+          local buf = vim.api.nvim_win_get_buf(win)
+          if vim.bo[buf].filetype == "dbout" then
+            vim.api.nvim_win_close(win, true)
+          end
+        end
+      end, desc = "Close query results" },
     },
   },
 }

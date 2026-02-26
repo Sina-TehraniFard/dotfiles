@@ -39,6 +39,14 @@ return {
           -- コメントを明るくする
           hl.Comment = { fg = "#7a88a8", italic = true }
           hl["@comment"] = { link = "Comment" }
+          -- DBUI ハイライト
+          hl.NotificationInfo = { fg = c.green, bg = "#0a0a0f" }
+          hl.DbUiTable = { fg = c.blue, bold = true }
+          hl.DbUiSavedQuery = { fg = c.green }
+          hl.DbUiBuffer = { fg = c.magenta }
+          hl.DbUiConnection = { fg = c.cyan, bold = true }
+          hl.DbUiConnectionOk = { fg = c.green, bold = true }
+          hl.DbUiConnectionError = { fg = c.red, bold = true }
         end,
       })
       vim.cmd.colorscheme("tokyonight-night")
@@ -81,12 +89,32 @@ return {
             local icon = level:match("error") and " " or " "
             return " " .. icon .. count
           end,
+          -- DBUIバッファ（dbui, dbout, sql）をタブラインから除外
+          custom_filter = function(buf_number)
+            local ft = vim.bo[buf_number].filetype
+            if ft == "dbui" or ft == "dbout" then
+              return false
+            end
+            -- DBUIが作成するクエリバッファ（db_ui配下）も除外
+            local buf_name = vim.api.nvim_buf_get_name(buf_number)
+            if buf_name:match("db_ui/") then
+              return false
+            end
+            return true
+          end,
           offsets = {
             {
               filetype = "neo-tree",
               text = "File Explorer",
               text_align = "center",
               separator = true,
+            },
+            {
+              filetype = "dbui",
+              text = " Database",
+              text_align = "center",
+              separator = true,
+              highlight = "Directory",
             },
           },
           color_icons = true,
@@ -138,7 +166,7 @@ return {
           component_separators = { left = "", right = "" },
           section_separators = { left = "", right = "" },
           disabled_filetypes = {
-            statusline = { "neo-tree", "lazy", "mason" },
+            statusline = { "neo-tree", "lazy", "mason", "dbui" },
           },
         },
         sections = {
