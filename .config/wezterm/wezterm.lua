@@ -205,10 +205,35 @@ local pane_resize_step = 5
 local default_shell = '/bin/zsh'
 local tab_activate_count = 5
 
+--- 現在のペインと同じSSHサーバー・同じディレクトリでペインを分割する
+local function split_and_cd(direction)
+  return wezterm.action_callback(function(_, pane)
+    -- 現在のCWDを取得
+    local cwd_uri = pane:get_current_working_dir()
+    local cwd_path = nil
+    if cwd_uri then
+      local uri = tostring(cwd_uri)
+      cwd_path = uri:gsub('^file://[^/]*', '')
+      cwd_path = cwd_path:gsub('%%(%x%x)', function(hex) return string.char(tonumber(hex, 16)) end)
+      cwd_path = cwd_path:gsub('/$', '')
+    end
+
+    -- CurrentPaneDomain で分割（SSH環境もそのまま引き継ぐ）
+    local split_dir = direction == 'horizontal' and 'Right' or 'Bottom'
+    local new_pane = pane:split { direction = split_dir, domain = 'CurrentPaneDomain' }
+
+    -- 同じディレクトリへ移動（シングルクォートでパスをエスケープ）
+    if cwd_path and cwd_path ~= '' then
+      local escaped = cwd_path:gsub("'", "'\\''")
+      new_pane:send_text("cd '" .. escaped .. "'\n")
+    end
+  end)
+end
+
 config.keys = {
-  -- ペイン: 分割・閉じる
-  { key = 'd', mods = 'CMD',       action = action.SplitHorizontal { domain = 'CurrentPaneDomain' } },
-  { key = 'd', mods = 'CMD|SHIFT', action = action.SplitVertical { domain = 'CurrentPaneDomain' } },
+  -- ペイン: 分割・閉じる（現在のSSHサーバー・ディレクトリを引き継ぐ）
+  { key = 'd', mods = 'CMD',       action = split_and_cd('horizontal') },
+  { key = 'd', mods = 'CMD|SHIFT', action = split_and_cd('vertical') },
   { key = 'w', mods = 'CMD',       action = action.CloseCurrentPane { confirm = false } },
 
   -- ペイン: フォーカス移動
