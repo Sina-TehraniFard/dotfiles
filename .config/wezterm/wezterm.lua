@@ -34,11 +34,11 @@ config.color_scheme = palette.scheme_name
 -- フォント
 -- ============================================================
 local font = {
-  main       = 'MonaspiceNe Nerd Font',
-  italic     = 'MonaspiceRn Nerd Font',
+  main       = 'Hack Nerd Font',
+  italic     = 'Hack Nerd Font',
   fallback   = 'Hiragino Sans',
-  weight     = 'Light',
-  tab_weight = 'Medium',
+  weight     = 'Regular',
+  tab_weight = 'Bold',
   size       = 12.0,
   tab_size   = 11.0,
 }
@@ -71,8 +71,8 @@ config.font_rules = {
 -- ============================================================
 local window_pad = 16
 
-config.window_background_opacity = 1.0
-config.macos_window_background_blur = 0
+config.window_background_opacity = 0.85
+config.macos_window_background_blur = 20
 config.window_decorations = 'RESIZE|MACOS_FORCE_ENABLE_SHADOW'
 config.window_padding = { left = window_pad, right = window_pad, top = window_pad, bottom = window_pad }
 config.initial_rows = 45
@@ -86,38 +86,10 @@ config.hide_tab_bar_if_only_one_tab = false
 config.tab_bar_at_bottom = false
 config.use_fancy_tab_bar = true
 
-config.window_frame = {
-  font = wezterm.font({ family = font.main, weight = font.tab_weight }),
-  font_size = font.tab_size,
-  active_titlebar_bg = palette.bg,
-  inactive_titlebar_bg = palette.bg_dark,
-}
-
 config.colors = {
-  tab_bar = {
-    background = palette.bg,
-    active_tab = {
-      bg_color = palette.blue,
-      fg_color = palette.bg,
-      intensity = 'Bold',
-    },
-    inactive_tab = {
-      bg_color = palette.bg_highlight,
-      fg_color = palette.comment,
-    },
-    inactive_tab_hover = {
-      bg_color = palette.bg_hover,
-      fg_color = palette.fg,
-    },
-    new_tab = {
-      bg_color = palette.bg,
-      fg_color = palette.blue,
-    },
-    new_tab_hover = {
-      bg_color = palette.blue,
-      fg_color = palette.bg,
-    },
-  },
+  cursor_bg     = '#7aa2f7',  -- Tokyo Night blue
+  cursor_fg     = '#1a1b26',  -- bg (文字色)
+  cursor_border = '#7aa2f7',
 }
 
 -- ============================================================
@@ -315,7 +287,7 @@ config.default_prog = local_config.default_prog or { default_shell, '-l' }
 -- ============================================================
 -- カーソル
 -- ============================================================
-config.default_cursor_style = 'BlinkingBar'
+config.default_cursor_style = 'BlinkingBlock'
 config.cursor_blink_rate = 500
 config.cursor_blink_ease_in = 'EaseIn'
 config.cursor_blink_ease_out = 'EaseOut'
